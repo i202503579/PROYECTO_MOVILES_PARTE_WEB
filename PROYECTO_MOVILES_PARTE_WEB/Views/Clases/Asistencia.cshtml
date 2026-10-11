@@ -1,0 +1,157 @@
+@model PROYECTO_MOVILES_PARTE_WEB.Models.AsistenciaClaseViewModel
+@{
+    ViewData["Title"] = "Control de Asistencia - Clase #" + Model.Clase.IdClase;
+}
+
+<div class="container-fluid px-0" style="max-width: 900px;">
+    <!-- Encabezado de la Clase -->
+    <div class="card card-custom p-4 mb-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-center border-bottom pb-3 mb-3">
+            <div>
+                <h4 class="fw-bold mb-1 text-dark">
+                    <i class="bi bi-clipboard-check-fill text-success me-2"></i> Control de Asistencia
+                </h4>
+                <div class="text-muted small">
+                    Sesión de Academia #@Model.Clase.IdClase &bull; 
+                    <strong>@Model.Clase.FechaClase.ToString("dd/MM/yyyy")</strong> (@Model.Clase.HoraInicio.ToString("hh\\:mm") - @Model.Clase.HoraFin.ToString("hh\\:mm"))
+                </div>
+            </div>
+            <a asp-action="Index" class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i> Volver a Clases
+            </a>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-sm-4">
+                <div class="p-2 border rounded bg-light">
+                    <small class="text-muted d-block">Profesor a Cargo</small>
+                    <strong class="text-dark">@Model.Clase.NombreProfesor</strong>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="p-2 border rounded bg-light">
+                    <small class="text-muted d-block">Cancha Asignada</small>
+                    <strong class="text-dark">@Model.Clase.NombreCancha</strong>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="p-2 border rounded bg-light">
+                    <small class="text-muted d-block">Estado de la Clase</small>
+                    <span class="badge bg-primary">@Model.Clase.EstadoClase</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card card-custom p-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+            <div>
+                <h5 class="fw-bold mb-0 text-dark">Alumnos Matriculados (@Model.Alumnos.Count)</h5>
+                <small class="text-muted">Lista exclusiva de alumnos del profesor asignado (RN02)</small>
+            </div>
+            @if (Model.Alumnos.Count > 0)
+            {
+                <button type="button" class="btn btn-sm btn-outline-success" onclick="marcarTodos('Presente')">
+                    <i class="bi bi-check-all me-1"></i> Marcar Todos Presentes
+                </button>
+            }
+        </div>
+
+        @if (Model.Alumnos.Count == 0)
+        {
+            <div class="alert alert-info text-center py-4 my-2">
+                <i class="bi bi-info-circle fs-3 d-block mb-2"></i>
+                <p class="mb-1 fw-semibold">No hay alumnos asignados a este profesor todavía.</p>
+                <small class="text-muted">Puedes matricular alumnos en el menú "Alumnos" asignándolos a @Model.Clase.NombreProfesor.</small>
+            </div>
+        }
+        else
+        {
+            <form asp-action="GuardarAsistencia" method="post">
+                <input type="hidden" name="idClase" value="@Model.Clase.IdClase" />
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 50px;">#</th>
+                                <th>Alumno</th>
+                                <th>Teléfono Apoderado</th>
+                                <th class="text-center" style="width: 280px;">Estado de Asistencia</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (int i = 0; i < Model.Alumnos.Count; i++)
+                            {
+                                var a = Model.Alumnos[i];
+                                <tr>
+                                    <td class="text-muted fw-bold">@(i + 1)</td>
+                                    <td>
+                                        <div class="fw-bold text-dark">@a.NombreAlumno</div>
+                                        <input type="hidden" name="alumnos[@i].IdAlumno" value="@a.IdAlumno" />
+                                        <input type="hidden" name="alumnos[@i].IdAsistencia" value="@a.IdAsistencia" />
+                                        <input type="hidden" name="alumnos[@i].NombreAlumno" value="@a.NombreAlumno" />
+                                    </td>
+                                    <td>
+                                        <span class="text-muted small">
+                                            <i class="bi bi-telephone me-1"></i>@(string.IsNullOrEmpty(a.TelefonoApoderado) ? "No registrado" : a.TelefonoApoderado)
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex justify-content-center gap-2">
+                                            <div class="form-check form-check-inline m-0">
+                                                <input class="btn-check" type="radio" name="alumnos[@i].EstadoAsistencia" id="pres_@i" value="Presente" @(a.EstadoAsistencia == "Presente" ? "checked" : "")>
+                                                <label class="btn btn-sm btn-outline-success px-2 py-1" for="pres_@i">
+                                                    Presente
+                                                </label>
+                                            </div>
+                                            <div class="form-check form-check-inline m-0">
+                                                <input class="btn-check" type="radio" name="alumnos[@i].EstadoAsistencia" id="tarde_@i" value="Tardanza" @(a.EstadoAsistencia == "Tardanza" ? "checked" : "")>
+                                                <label class="btn btn-sm btn-outline-warning px-2 py-1" for="tarde_@i">
+                                                    Tardanza
+                                                </label>
+                                            </div>
+                                            <div class="form-check form-check-inline m-0">
+                                                <input class="btn-check" type="radio" name="alumnos[@i].EstadoAsistencia" id="aus_@i" value="Ausente" @(a.EstadoAsistencia == "Ausente" ? "checked" : "")>
+                                                <label class="btn btn-sm btn-outline-danger px-2 py-1" for="aus_@i">
+                                                    Ausente
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Cierre de Clase opcional (Trigger trg_clase_cierre) -->
+                <div class="border-top pt-3 mt-4 d-flex flex-wrap justify-content-between align-items-center gap-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="chkCompletar" name="marcarCompletada" value="true">
+                        <label class="form-check-label fw-semibold text-dark" for="chkCompletar">
+                            Marcar la clase como "Completada" al guardar
+                        </label>
+                        <small class="text-muted d-block">Cumple con la validación de cierre de clase.</small>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <a asp-action="Index" class="btn btn-light">Cancelar</a>
+                        <button type="submit" class="btn btn-success px-4">
+                            <i class="bi bi-save me-1"></i> Guardar Asistencias
+                        </button>
+                    </div>
+                </div>
+            </form>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function marcarTodos(estado) {
+            const radios = document.querySelectorAll(`input[type="radio"][value="${estado}"]`);
+            radios.forEach(r => r.checked = true);
+        }
+    </script>
+}

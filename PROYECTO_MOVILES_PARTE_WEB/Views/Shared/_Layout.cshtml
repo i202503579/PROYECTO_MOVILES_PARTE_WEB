@@ -1,46 +1,335 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+@{
+    var usuarioLogueado = HttpContextAccessor.HttpContext?.Session.GetString("UsuarioLogueado") ?? "Seichi";
+    var rol = HttpContextAccessor.HttpContext?.Session.GetString("Rol") ?? "Administrador";
+    var controllerActual = ViewContext.RouteData.Values["controller"]?.ToString() ?? "Home";
+}
+<!DOCTYPE html>
+<html lang="es">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - PROYECTO_MOVILES_PARTE_WEB</title>
+    <title>@ViewData["Title"] - Canchitas Club Admin</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/PROYECTO_MOVILES_PARTE_WEB.styles.css" asp-append-version="true" />
+    <style>
+        :root {
+            --sidebar-bg: #1e824c;
+            --sidebar-dark: #145a32;
+            --sidebar-text: #ffffff;
+            --accent-green: #2ecc71;
+            --accent-orange: #e67e22;
+        }
+
+        body {
+            background-color: #f4f6f9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .admin-wrapper {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            width: 260px;
+            background: linear-gradient(180deg, #1e824c 0%, #145a32 100%);
+            color: var(--sidebar-text);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+        }
+
+        .sidebar-brand {
+            padding: 20px;
+            font-size: 1.4rem;
+            font-weight: 700;
+            border-bottom: 1px solid rgba(255,255,255,0.15);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #ffffff;
+            text-decoration: none;
+        }
+
+        .sidebar-section-title {
+            padding: 15px 20px 5px 20px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: rgba(255,255,255,0.7);
+            font-weight: 600;
+        }
+
+        .sidebar-nav {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar-nav li a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            color: rgba(255,255,255,0.9);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s;
+            border-left: 4px solid transparent;
+        }
+
+        .sidebar-nav li a:hover,
+        .sidebar-nav li.active a {
+            background-color: rgba(255,255,255,0.15);
+            color: #ffffff;
+            border-left-color: #f1c40f;
+        }
+
+        .sidebar-nav li a i {
+            font-size: 1.1rem;
+        }
+
+        /* Content Area */
+        .main-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* Top Header */
+        .top-navbar {
+            background-color: #ffffff;
+            height: 65px;
+            padding: 0 25px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 20px;
+            border-bottom: 1px solid #e1e8ed;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+        }
+
+        .top-navbar .notif-badge {
+            position: relative;
+            cursor: pointer;
+            color: #555;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .top-navbar .badge-count {
+            position: absolute;
+            top: -4px;
+            right: -6px;
+            background-color: #e74c3c;
+            color: white;
+            font-size: 0.65rem;
+            padding: 2px 5px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .user-avatar {
+            width: 38px;
+            height: 38px;
+            background-color: #1e824c;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .page-body {
+            padding: 25px;
+            flex-grow: 1;
+        }
+
+        .card-custom {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            background-color: #ffffff;
+        }
+    </style>
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">PROYECTO_MOVILES_PARTE_WEB</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+    <div class="admin-wrapper">
+        <!-- Sidebar Verde (Mockup) -->
+        <aside class="sidebar">
+            <a asp-controller="Home" asp-action="Index" class="sidebar-brand">
+                <i class="bi bi-dribbble"></i>
+                <span>Canchitas Club</span>
+            </a>
+
+            @if (rol == "Administrador" || rol == "Operador")
+            {
+                <div class="sidebar-section-title">PANEL</div>
+                <ul class="sidebar-nav">
+                    <li class="@(controllerActual == "Home" ? "active" : "")">
+                        <a asp-controller="Home" asp-action="Index">
+                            <i class="bi bi-grid-1x2-fill"></i>
+                            <span>Analíticas</span>
+                        </a>
+                    </li>
+                </ul>
+            }
+
+            <div class="sidebar-section-title">@(rol == "Profesor" || rol == "Entrenador" ? "MI ACADEMIA" : "LISTADO Y GESTIÓN")</div>
+            <ul class="sidebar-nav">
+                @if (rol == "Administrador" || rol == "Operador")
+                {
+                    <li class="@(controllerActual == "Reservas" ? "active" : "")">
+                        <a asp-controller="Reservas" asp-action="Index">
+                            <i class="bi bi-calendar-check-fill"></i>
+                            <span>Alquileres (Reservas)</span>
+                        </a>
+                    </li>
+                }
+
+                @if (rol == "Administrador" || rol == "Profesor" || rol == "Entrenador")
+                {
+                    <li class="@(controllerActual == "Clases" ? "active" : "")">
+                        <a asp-controller="Clases" asp-action="Index">
+                            <i class="bi bi-mortarboard-fill"></i>
+                            <span>Clases y Asistencia</span>
+                        </a>
+                    </li>
+                }
+
+                @if (rol == "Administrador")
+                {
+                    <li class="@(controllerActual == "Canchas" ? "active" : "")">
+                        <a asp-controller="Canchas" asp-action="Index">
+                            <i class="bi bi-layers-fill"></i>
+                            <span>Canchitas y Tarifas</span>
+                        </a>
+                    </li>
+                }
+
+                @if (rol == "Administrador" || rol == "Operador")
+                {
+                    <li class="@(controllerActual == "Clientes" ? "active" : "")">
+                        <a asp-controller="Clientes" asp-action="Index">
+                            <i class="bi bi-person-lines-fill"></i>
+                            <span>Clientes</span>
+                        </a>
+                    </li>
+                }
+
+                @if (rol == "Administrador" || rol == "Profesor" || rol == "Entrenador")
+                {
+                    <li class="@(controllerActual == "Alumnos" ? "active" : "")">
+                        <a asp-controller="Alumnos" asp-action="Index">
+                            <i class="bi bi-people-fill"></i>
+                            <span>Alumnos</span>
+                        </a>
+                    </li>
+                }
+
+                @if (rol == "Administrador")
+                {
+                    <li class="@(controllerActual == "Usuarios" ? "active" : "")">
+                        <a asp-controller="Usuarios" asp-action="Index">
+                            <i class="bi bi-shield-lock-fill"></i>
+                            <span>Usuarios y Roles</span>
+                        </a>
+                    </li>
+                }
+
+                @if (rol == "Administrador" || rol == "Operador")
+                {
+                    <li class="@(controllerActual == "Prestamos" ? "active" : "")">
+                        <a asp-controller="Prestamos" asp-action="Index">
+                            <i class="bi bi-trophy-fill"></i>
+                            <span>Préstamo de Balón</span>
+                        </a>
+                    </li>
+                }
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Top Navbar -->
+            <header class="top-navbar">
+                <a asp-controller="Reservas" asp-action="Index" class="notif-badge text-decoration-none text-secondary" title="Ir a Alquileres y Reservas">
+                    <div class="position-relative d-inline-block">
+                        <i class="bi bi-bell-fill fs-5 text-secondary"></i>
+                        <span class="badge-count">●</span>
+                    </div>
+                    <span class="text-muted d-none d-md-inline ms-1" style="font-size: 0.85rem;">Alquileres Activos</span>
+                </a>
+
+                <div class="dropdown">
+                    <div class="user-profile dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                        <div class="user-avatar">
+                            @(usuarioLogueado.Length > 0 ? usuarioLogueado.Substring(0, 1).ToUpper() : "U")
+                        </div>
+                        <div class="d-none d-sm-block text-start">
+                            <div class="fw-bold" style="font-size: 0.9rem;">@usuarioLogueado</div>
+                            <small class="text-muted" style="font-size: 0.75rem;">@rol</small>
+                        </div>
+                    </div>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                        <li>
+                            <a class="dropdown-item text-danger" asp-controller="Login" asp-action="Logout">
+                                <i class="bi bi-box-arrow-right me-2"></i> Cerrar Sesión
+                            </a>
                         </li>
                     </ul>
                 </div>
-            </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
+            </header>
+
+            <!-- Body -->
+            <main class="page-body">
+                @if (TempData["Exito"] != null)
+                {
+                    <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+                        <i class="bi bi-check-circle-fill me-2"></i> @TempData["Exito"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+
+                @if (TempData["Error"] != null)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i> @TempData["Error"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+
+                @if (ViewBag.Error != null)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i> @ViewBag.Error
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+
+                @RenderBody()
+            </main>
+        </div>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - PROYECTO_MOVILES_PARTE_WEB - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

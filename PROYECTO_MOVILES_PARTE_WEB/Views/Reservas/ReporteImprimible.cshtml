@@ -1,0 +1,128 @@
+@model List<PROYECTO_MOVILES_PARTE_WEB.Models.Reserva>
+@{
+    Layout = null;
+    var totalCobrado = Model.Sum(r => r.MontoRecibido);
+    var totalPorCobrar = Model.Sum(r => Math.Max(0, r.PrecioReserva - r.MontoRecibido));
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <title>Reporte de Alquileres y Caja - Canchitas Club</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        body {
+            background-color: #ffffff;
+            font-family: Arial, sans-serif;
+            color: #333;
+            padding: 30px;
+        }
+        .header-print {
+            border-bottom: 2px solid #1e824c;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+        }
+        @@media print {
+            .no-print {
+                display: none !important;
+            }
+            body {
+                padding: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <!-- Barra de herramientas (No se imprime) -->
+        <div class="no-print d-flex justify-content-between align-items-center mb-4 p-3 bg-light rounded border">
+            <div>
+                <strong>Vista de Impresión / Exportación PDF</strong>
+                <p class="text-muted mb-0 small">Usa el botón para guardar como PDF o imprimir directamente.</p>
+            </div>
+            <div class="d-flex gap-2">
+                <button onclick="window.print()" class="btn btn-danger">
+                    <i class="bi bi-printer-fill me-1"></i> Imprimir / Guardar PDF
+                </button>
+                <button onclick="window.close()" class="btn btn-secondary">Cerrar</button>
+            </div>
+        </div>
+
+        <!-- Encabezado Oficial -->
+        <div class="header-print d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="fw-bold text-success mb-0">⚽ CANCHITAS CLUB</h2>
+                <div class="text-muted">Complejo Deportivo & Academia de Fútbol</div>
+                <small class="text-muted">Lima, Perú | Teléfono: 999-000-111</small>
+            </div>
+            <div class="text-end">
+                <h5 class="fw-bold mb-1">REPORTE FINANCIERO DE RESERVAS</h5>
+                <div class="small text-muted">Fecha de emisión: @DateTime.Now.ToString("dd/MM/yyyy HH:mm")</div>
+                <div class="badge bg-success text-white">REPORTE OFICIAL</div>
+            </div>
+        </div>
+
+        <!-- Resumen de Totales -->
+        <div class="row g-3 mb-4">
+            <div class="col-4">
+                <div class="p-3 border rounded bg-light">
+                    <div class="small text-muted text-uppercase">Total Recaudado</div>
+                    <h4 class="fw-bold text-success mb-0">S/ @totalCobrado.ToString("N2")</h4>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="p-3 border rounded bg-light">
+                    <div class="small text-muted text-uppercase">Saldo por Cobrar</div>
+                    <h4 class="fw-bold text-danger mb-0">S/ @totalPorCobrar.ToString("N2")</h4>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="p-3 border rounded bg-light">
+                    <div class="small text-muted text-uppercase">Total Reservas</div>
+                    <h4 class="fw-bold text-dark mb-0">@Model.Count registros</h4>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla Detallada -->
+        <table class="table table-bordered table-striped table-sm" style="font-size: 0.85rem;">
+            <thead class="table-dark">
+                <tr>
+                    <th>#</th>
+                    <th>Cliente</th>
+                    <th>Cancha</th>
+                    <th>Fecha</th>
+                    <th>Horario</th>
+                    <th class="text-end">Precio Total</th>
+                    <th class="text-end">Cobrado</th>
+                    <th class="text-end">Saldo</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var r in Model)
+                {
+                    var saldo = Math.Max(0, r.PrecioReserva - r.MontoRecibido);
+                    <tr>
+                        <td>@r.IdReserva</td>
+                        <td class="fw-bold">@r.NombreCliente</td>
+                        <td>@r.NombreCancha</td>
+                        <td>@r.HoraInicio.ToString("dd/MM/yyyy")</td>
+                        <td>@r.HoraInicio.ToString("HH:mm") - @r.HoraFin.ToString("HH:mm")</td>
+                        <td class="text-end">S/ @r.PrecioReserva.ToString("N2")</td>
+                        <td class="text-end text-success fw-bold">S/ @r.MontoRecibido.ToString("N2")</td>
+                        <td class="text-end @(saldo > 0 ? "text-danger fw-bold" : "text-muted")">S/ @saldo.ToString("N2")</td>
+                        <td>@r.EstadoReserva</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <div class="mt-4 pt-4 border-top d-flex justify-content-between text-muted small">
+            <div>Generado por el Sistema de Administración Web Canchitas Club</div>
+            <div>Página 1 de 1</div>
+        </div>
+    </div>
+</body>
+</html>

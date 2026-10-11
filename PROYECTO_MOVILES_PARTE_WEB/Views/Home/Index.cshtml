@@ -1,8 +1,168 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@model PROYECTO_MOVILES_PARTE_WEB.Models.DashboardViewModel
+@{
+    ViewData["Title"] = "Panel de Control";
+    var nombresDias = new[] { "L", "M", "M", "J", "V", "S", "D" };
+    var nombresDiasCompletos = new[] { "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo" };
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container-fluid px-0">
+    <div class="row g-3 mb-4">
+        <!-- Usuarios -->
+        <div class="col-md-4 col-xl-3">
+            <div class="card card-custom p-3 border-start border-4 border-success">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted text-uppercase fw-semibold" style="font-size: 0.75rem;">USUARIOS / CLIENTES</div>
+                        <h2 class="fw-bold mb-0 text-dark">@Model.TotalUsuarios</h2>
+                    </div>
+                    <div class="rounded-circle bg-success bg-opacity-10 p-3 text-success">
+                        <i class="bi bi-people-fill fs-3"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alumnos -->
+        <div class="col-md-4 col-xl-3">
+            <div class="card card-custom p-3 border-start border-4 border-warning">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted text-uppercase fw-semibold" style="font-size: 0.75rem;">ALUMNOS ACADEMIA</div>
+                        <h2 class="fw-bold mb-0 text-dark">@Model.TotalAlumnos</h2>
+                    </div>
+                    <div class="rounded-circle bg-warning bg-opacity-10 p-3 text-warning">
+                        <i class="bi bi-mortarboard-fill fs-3"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ganancia -->
+        <div class="col-md-4 col-xl-4">
+            <div class="card card-custom p-3 border-start border-4 border-primary">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted text-uppercase fw-semibold" style="font-size: 0.75rem;">GANANCIA DEL MES</div>
+                        <h2 class="fw-bold mb-0 text-primary">S/ @Model.TotalGananciaMes.ToString("N2")</h2>
+                        <small class="text-muted">Por alquileres recaudados</small>
+                    </div>
+                    <div class="rounded-circle bg-primary bg-opacity-10 p-3 text-primary">
+                        <i class="bi bi-cash-stack fs-3"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Canchas -->
+        <div class="col-md-12 col-xl-2">
+            <div class="card card-custom p-3 border-start border-4 border-info">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted text-uppercase fw-semibold" style="font-size: 0.75rem;">CANCHITAS</div>
+                        <h2 class="fw-bold mb-0 text-dark">@Model.TotalCanchas</h2>
+                    </div>
+                    <div class="rounded-circle bg-info bg-opacity-10 p-3 text-info">
+                        <i class="bi bi-dribbble fs-3"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--Matriz Semanal de Canchitas -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card card-custom p-4">
+                <!-- Barra superior de filtro -->
+                <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+                    <div>
+                        <h4 class="fw-bold mb-0 text-dark">
+                            <i class="bi bi-calendar3 me-2 text-success"></i> CANCHITAS - Semana @Model.SemanaNumero (@Model.Anio)
+                        </h4>
+                        <small class="text-muted">Vista semanal de disponibilidad, reservas y clases</small>
+                    </div>
+
+                    <form method="get" class="d-flex align-items-center gap-2">
+                        <label class="form-label mb-0 fw-semibold text-muted">Cancha:</label>
+                        <select name="idCancha" class="form-select form-select-sm" style="min-width: 200px;" onchange="this.form.submit()">
+                            @foreach (var c in Model.Canchas)
+                            {
+                                <option value="@c.IdCancha" selected="@(c.IdCancha == Model.CanchaSeleccionadaId)">
+                                    @c.NombreCancha (S/ @c.PrecioAlquiler/h)
+                                </option>
+                            }
+                        </select>
+                        <input type="hidden" name="semana" value="@Model.SemanaNumero" />
+                    </form>
+                </div>
+
+                <!-- Grilla Semanal con ancho fijo y texto centrado -->
+                <div class="table-responsive">
+                    <table class="table table-bordered text-center align-middle mb-0" style="table-layout: fixed; width: 100%; font-size: 0.8rem;">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 85px;" class="fw-bold bg-light py-2">Hora</th>
+                                @for (int d = 0; d < 7; d++)
+                                {
+                                    <th style="width: 13%;" class="fw-bold py-2">
+                                        <div class="fw-bold">@nombresDias[d]</div>
+                                        <div style="font-size: 0.7rem; font-weight: normal;" class="text-muted">@nombresDiasCompletos[d]</div>
+                                    </th>
+                                }
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (int hora = 7; hora <= 22; hora++)
+                            {
+                                <tr style="height: 52px;">
+                                    <td class="fw-bold bg-light text-muted p-1">@($"{hora:D2}:00")</td>
+                                    @for (int dia = 1; dia <= 7; dia++)
+                                    {
+                                        var slot = Model.Turnos.FirstOrDefault(t => t.Hora == hora && t.DiaSemana == dia);
+                                        if (slot != null && slot.Tipo == "Reserva")
+                                        {
+                                            <td class="p-1" style="background-color: #27ae60; color: white;" title="@slot.Titulo (@slot.Estado)">
+                                                <div class="fw-bold text-truncate px-1" style="font-size: 0.8rem;">@slot.Titulo</div>
+                                                <span class="badge bg-white bg-opacity-25 py-0 px-1" style="font-size: 0.65rem;">Reservado</span>
+                                            </td>
+                                        }
+                                        else if (slot != null && slot.Tipo == "Clase")
+                                        {
+                                            <td class="p-1" style="background-color: #e67e22; color: white;" title="@slot.Titulo">
+                                                <div class="fw-bold text-truncate px-1" style="font-size: 0.8rem;">@slot.Titulo</div>
+                                                <span class="badge bg-white bg-opacity-25 py-0 px-1" style="font-size: 0.65rem;">Clase</span>
+                                            </td>
+                                        }
+                                        else
+                                        {
+                                            <td class="p-1" style="background-color: #ffffff;">
+                                                <span class="text-muted" style="font-size: 0.75rem;">Libre</span>
+                                            </td>
+                                        }
+                                    }
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Leyenda de Colores (Exacta al Boceto) -->
+                <div class="d-flex flex-wrap align-items-center gap-4 mt-3 pt-3 border-top">
+                    <span class="fw-bold text-muted">Leyenda:</span>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge rounded-circle p-2" style="background-color: #27ae60;"> </span>
+                        <span class="fw-semibold">RESERVADO (Alquiler)</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge rounded-circle p-2" style="background-color: #e67e22;"> </span>
+                        <span class="fw-semibold">CLASES (Academia)</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge rounded-circle p-2 border" style="background-color: #ffffff;"> </span>
+                        <span class="text-muted">DISPONIBLE (Libre)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

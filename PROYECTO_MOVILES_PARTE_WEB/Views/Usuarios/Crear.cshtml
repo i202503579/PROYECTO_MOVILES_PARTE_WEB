@@ -1,0 +1,61 @@
+@model PROYECTO_MOVILES_PARTE_WEB.Models.Usuario
+@{
+    ViewData["Title"] = "Nuevo Usuario";
+}
+
+<div class="container-fluid px-0" style="max-width: 700px;">
+    <div class="card card-custom p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+            <div>
+                <h4 class="fw-bold mb-1 text-dark"><i class="bi bi-person-plus text-success me-2"></i> Crear Usuario</h4>
+                <small class="text-muted">Registrar un nuevo acceso al sistema (Admin, Operador o Profesor)</small>
+            </div>
+            <a asp-action="Index" class="btn btn-sm btn-outline-secondary">Volver</a>
+        </div>
+
+        <form asp-action="Crear" method="post">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Nombre Completo <span class="text-danger">*</span></label>
+                    <input asp-for="NombreUsuario" class="form-control" placeholder="Ej: Carlos Ramírez" required />
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Nombre de Usuario (Login) <span class="text-danger">*</span></label>
+                    <input asp-for="UsernameUsuario" class="form-control" placeholder="Ej: cramirez" required />
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Teléfono <span class="text-danger">*</span></label>
+                    <input asp-for="Telefono" class="form-control" placeholder="Ej: 999888777" required />
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Contraseña <span class="text-danger">*</span></label>
+                    <input asp-for="Password" type="password" class="form-control" placeholder="••••••••" required />
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Rol en el Sistema <span class="text-danger">*</span></label>
+                    <select asp-for="Rol" class="form-select" required>
+                        <option value="Operador">Operador (Cancha & Cobros)</option>
+                        <option value="Profesor">Profesor (Academia & Asistencia)</option>
+                        <option value="Administrador">Administrador (Acceso Total)</option>
+                    </select>
+                </div>
+
+                <div class="col-md-6 d-flex align-items-center mt-4">
+                    <div class="form-check form-switch fs-5">
+                        <input asp-for="ActivoUsuario" class="form-check-input" type="checkbox" checked />
+                        <label class="form-check-label fs-6 fw-semibold text-muted ms-2">Usuario Activo</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+                <a asp-action="Index" class="btn btn-light">Cancelar</a>
+                <button type="submit" class="btn btn-success px-4">Guardar Usuario</button>
+            </div>
+        </form>
+    </div>
+</div>

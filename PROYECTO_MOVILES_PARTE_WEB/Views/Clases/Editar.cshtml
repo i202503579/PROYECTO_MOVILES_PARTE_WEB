@@ -1,0 +1,62 @@
+@model PROYECTO_MOVILES_PARTE_WEB.Models.Clase
+@{
+    ViewData["Title"] = "Editar Clase";
+}
+
+<div class="container-fluid px-0" style="max-width: 700px;">
+    <div class="card card-custom p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+            <div>
+                <h4 class="fw-bold mb-1 text-dark"><i class="bi bi-pencil-square text-primary me-2"></i> Modificar Clase #@Model.IdClase</h4>
+                <small class="text-muted">Actualizar horario o profesor de la clase</small>
+            </div>
+            <a asp-action="Index" class="btn btn-sm btn-outline-secondary">Volver</a>
+        </div>
+
+        <form asp-action="Editar" method="post">
+            <input type="hidden" asp-for="IdClase" />
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Profesor a Cargo <span class="text-danger">*</span></label>
+                    <select asp-for="IdUsuario" asp-items="ViewBag.Profesores" class="form-select" required></select>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Cancha <span class="text-danger">*</span></label>
+                    <select asp-for="IdCancha" asp-items="ViewBag.Canchas" class="form-select" required></select>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Fecha de Clase <span class="text-danger">*</span></label>
+                    <input asp-for="FechaClase" type="date" class="form-control" required />
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Hora Inicio <span class="text-danger">*</span></label>
+                    <input asp-for="HoraInicio" type="time" class="form-control" required />
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Hora Fin <span class="text-danger">*</span></label>
+                    <input asp-for="HoraFin" type="time" class="form-control" required />
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Estado de la Clase</label>
+                    <select asp-for="EstadoClase" class="form-select">
+                        <option value="Programada">Programada</option>
+                        <option value="En curso">En curso</option>
+                        <option value="Completada">Completada</option>
+                        <option value="Cancelada">Cancelada</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+                <a asp-action="Index" class="btn btn-light">Cancelar</a>
+                <button type="submit" class="btn btn-primary px-4">Guardar Cambios</button>
+            </div>
+        </form>
+    </div>
+</div>

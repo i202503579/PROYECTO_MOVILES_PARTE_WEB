@@ -1,0 +1,49 @@
+@model PROYECTO_MOVILES_PARTE_WEB.Models.Cancha
+@{
+    ViewData["Title"] = "Editar Cancha";
+}
+
+<div class="container-fluid px-0" style="max-width: 700px;">
+    <div class="card card-custom p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+            <div>
+                <h4 class="fw-bold mb-1 text-dark"><i class="bi bi-pencil-square text-primary me-2"></i> Modificar Canchita</h4>
+                <small class="text-muted">Editar datos de la cancha y tarifa</small>
+            </div>
+            <a asp-action="Index" class="btn btn-sm btn-outline-secondary">Volver</a>
+        </div>
+
+        <form asp-action="Editar" method="post">
+            <input type="hidden" asp-for="IdCancha" />
+
+            <div class="row g-3">
+                <div class="col-12">
+                    <label class="form-label fw-semibold">Nombre de la Cancha <span class="text-danger">*</span></label>
+                    <input asp-for="NombreCancha" class="form-control" required />
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label fw-semibold">Descripción / Tipo de Césped <span class="text-danger">*</span></label>
+                    <input asp-for="DescripcionCancha" class="form-control" required />
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Precio de Alquiler por Hora (S/) <span class="text-danger">*</span></label>
+                    <input asp-for="PrecioAlquiler" type="number" step="0.5" class="form-control" required />
+                </div>
+
+                <div class="col-md-6 d-flex align-items-center mt-4">
+                    <div class="form-check form-switch fs-5">
+                        <input asp-for="ActivoCancha" class="form-check-input" type="checkbox" />
+                        <label class="form-check-label fs-6 fw-semibold text-muted ms-2">Cancha Activa</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+                <a asp-action="Index" class="btn btn-light">Cancelar</a>
+                <button type="submit" class="btn btn-primary px-4">Guardar Cambios</button>
+            </div>
+        </form>
+    </div>
+</div>

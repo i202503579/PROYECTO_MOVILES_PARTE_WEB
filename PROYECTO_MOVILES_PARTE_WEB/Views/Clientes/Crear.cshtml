@@ -1,0 +1,55 @@
+@model PROYECTO_MOVILES_PARTE_WEB.Models.Cliente
+@{
+    ViewData["Title"] = "Nuevo Cliente";
+}
+
+<div class="container-fluid px-0" style="max-width: 700px;">
+    <div class="card card-custom p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+            <div>
+                <h4 class="fw-bold mb-1 text-dark"><i class="bi bi-person-plus text-success me-2"></i> Registrar Cliente</h4>
+                <small class="text-muted">Añadir cliente particular o institución</small>
+            </div>
+            <a asp-action="Index" class="btn btn-sm btn-outline-secondary">Volver</a>
+        </div>
+
+        <form asp-action="Crear" method="post">
+            <div class="row g-3">
+                <div class="col-12">
+                    <label class="form-label fw-semibold">Nombre Completo / Empresa <span class="text-danger">*</span></label>
+                    <input asp-for="NombreCliente" class="form-control" placeholder="Ej: Juan Pérez o Club Los Álamos" required />
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Tipo de Cliente <span class="text-danger">*</span></label>
+                    <select asp-for="TipoCliente" class="form-select">
+                        <option value="Particular">Particular</option>
+                        <option value="Institucional">Institucional</option>
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Número de Documento (DNI/RUC) <span class="text-danger">*</span></label>
+                    <input asp-for="NumeroDocumento" class="form-control" placeholder="Ej: 71234567 o 20601234567" required />
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Teléfono / Celular</label>
+                    <input asp-for="TelefonoCliente" class="form-control" placeholder="Ej: 987111222" />
+                </div>
+
+                <div class="col-md-6 d-flex align-items-center mt-4">
+                    <div class="form-check form-switch fs-5">
+                        <input asp-for="ActivoCliente" class="form-check-input" type="checkbox" checked />
+                        <label class="form-check-label fs-6 fw-semibold text-muted ms-2">Cliente Activo</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+                <a asp-action="Index" class="btn btn-light">Cancelar</a>
+                <button type="submit" class="btn btn-success px-4">Guardar Cliente</button>
+            </div>
+        </form>
+    </div>
+</div>

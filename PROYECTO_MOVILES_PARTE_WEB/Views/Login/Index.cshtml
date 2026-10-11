@@ -1,0 +1,92 @@
+@{
+    Layout = null;
+    ViewData["Title"] = "Iniciar Sesión - Canchitas Club";
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #1e824c 0%, #145a32 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 15px;
+        }
+        .login-card {
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+            max-width: 420px;
+            width: 100%;
+            padding: 40px 30px;
+        }
+        .btn-green {
+            background-color: #1e824c;
+            color: #ffffff;
+            font-weight: 600;
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            width: 100%;
+            transition: all 0.2s;
+        }
+        .btn-green:hover {
+            background-color: #145a32;
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <div class="text-center mb-4">
+            <div class="text-success mb-2" style="font-size: 3rem;">
+                <i class="bi bi-dribbble"></i>
+            </div>
+            <h3 class="fw-bold mb-1 text-dark">Canchitas Club</h3>
+            <p class="text-muted" style="font-size: 0.9rem;">Portal de Administración Web</p>
+        </div>
+
+        @if (ViewBag.Error != null)
+        {
+            <div class="alert alert-danger py-2" role="alert" style="font-size: 0.85rem;">
+                <i class="bi bi-exclamation-triangle-fill me-1"></i> @ViewBag.Error
+            </div>
+        }
+
+        <form asp-controller="Login" asp-action="IniciarSesion" method="post">
+            <div class="mb-3">
+                <label class="form-label fw-semibold text-muted">Usuario</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0"><i class="bi bi-person text-muted"></i></span>
+                    <input type="text" name="username" class="form-control border-start-0 ps-0" placeholder="Ej: admin" required autofocus />
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label fw-semibold text-muted">Contraseña</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0"><i class="bi bi-lock text-muted"></i></span>
+                    <input type="password" name="password" class="form-control border-start-0 ps-0" placeholder="••••••••" required />
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-green">
+                <i class="bi bi-box-arrow-in-right me-2"></i> Iniciar Sesión
+            </button>
+        </form>
+
+        <div class="text-center mt-4">
+            <small class="text-muted">Proyecto Móviles & Web API &copy; 2026</small>
+        </div>
+    </div>
+</body>
+</html>
