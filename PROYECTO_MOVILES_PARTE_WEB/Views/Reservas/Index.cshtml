@@ -51,9 +51,9 @@
             <div class="col-md-4">
                 <select name="estado" class="form-select form-select-sm" onchange="this.form.submit()">
                     <option value="">-- Todos los Estados --</option>
-                    <option value="Confirmada" selected="@(ViewBag.EstadoSel == "Confirmada")">Confirmada</option>
+                    <option value="Completada" selected="@(ViewBag.EstadoSel == "Completada")">Completo</option>
+                    <option value="Confirmada" selected="@(ViewBag.EstadoSel == "Confirmada")">Confirmado</option>
                     <option value="Pendiente" selected="@(ViewBag.EstadoSel == "Pendiente")">Pendiente</option>
-                    <option value="Completada" selected="@(ViewBag.EstadoSel == "Completada")">Completada</option>
                     <option value="Cancelada" selected="@(ViewBag.EstadoSel == "Cancelada")">Cancelada</option>
                 </select>
             </div>
@@ -126,21 +126,21 @@
                                 }
                             </td>
                             <td>
-                                @if (r.EstadoReserva == "Confirmada")
+                                @if (r.EstadoReserva == "Completada" || (r.MontoRecibido >= r.PrecioReserva && r.EstadoReserva != "Cancelada"))
                                 {
-                                    <span class="badge bg-success">Confirmada</span>
+                                    <span class="badge bg-success"><i class="me-1"></i> Completo</span>
                                 }
-                                else if (r.EstadoReserva == "Pendiente")
+                                else if (r.EstadoReserva == "Confirmada" || (r.MontoRecibido > 0 && r.EstadoReserva != "Cancelada"))
                                 {
-                                    <span class="badge bg-warning text-dark">Pendiente</span>
+                                    <span class="badge bg-primary"><i class="me-1"></i> Confirmado</span>
                                 }
-                                else if (r.EstadoReserva == "Completada")
+                                else if (r.EstadoReserva == "Cancelada")
                                 {
-                                    <span class="badge bg-info text-dark">Completada</span>
+                                    <span class="badge bg-danger"><i class="me-1"></i> Cancelada</span>
                                 }
                                 else
                                 {
-                                    <span class="badge bg-secondary">Cancelada</span>
+                                    <span class="badge bg-warning text-dark"><i class="me-1"></i> Pendiente</span>
                                 }
                             </td>
                             <td class="text-end">

@@ -1,6 +1,10 @@
 @model List<PROYECTO_MOVILES_PARTE_WEB.Models.Alumno>
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
 @{
     ViewData["Title"] = "Gestión de Alumnos";
+    var rol = HttpContextAccessor.HttpContext?.Session.GetString("Rol") ?? "";
+    var esProfesor = rol == "Profesor" || rol == "Entrenador";
 }
 
 <div class="container-fluid px-0">
@@ -9,9 +13,12 @@
             <h3 class="fw-bold mb-1 text-dark"><i class="bi bi-people-fill text-success me-2"></i> Alumnos de Academia</h3>
             <p class="text-muted mb-0">Matrícula de alumnos, datos de apoderados y profesor asignado</p>
         </div>
-        <a asp-action="Crear" class="btn btn-success">
-            <i class="bi bi-person-plus-fill me-1"></i> Matricular Alumno
-        </a>
+        @if (!esProfesor)
+        {
+            <a asp-action="Crear" class="btn btn-success">
+                <i class="bi bi-person-plus-fill me-1"></i> Matricular Alumno
+            </a>
+        }
     </div>
 
     <div class="card card-custom p-3">
@@ -25,14 +32,17 @@
                         <th>Fecha Ingreso</th>
                         <th>Profesor Asignado</th>
                         <th>Estado</th>
-                        <th class="text-end">Acciones</th>
+                        @if (!esProfesor)
+                        {
+                            <th class="text-end">Acciones</th>
+                        }
                     </tr>
                 </thead>
                 <tbody>
                     @if (Model.Count == 0)
                     {
                         <tr>
-                            <td colspan="7" class="text-center py-4 text-muted">
+                            <td colspan="@(esProfesor ? 6 : 7)" class="text-center py-4 text-muted">
                                 No hay alumnos matriculados.
                             </td>
                         </tr>
@@ -65,11 +75,14 @@
                                     @(a.ActivoAlumno ? "Activo" : "Inactivo")
                                 </span>
                             </td>
-                            <td class="text-end">
-                                <a asp-action="Editar" asp-route-id="@a.IdAlumno" class="btn btn-sm btn-outline-primary" title="Editar">
-                                    <i class="bi bi-pencil"></i>
-                                </a>
-                            </td>
+                            @if (!esProfesor)
+                            {
+                                <td class="text-end">
+                                    <a asp-action="Editar" asp-route-id="@a.IdAlumno" class="btn btn-sm btn-outline-primary" title="Editar">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                </td>
+                            }
                         </tr>
                     }
                 </tbody>

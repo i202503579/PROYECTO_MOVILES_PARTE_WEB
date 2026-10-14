@@ -18,6 +18,11 @@ namespace PROYECTO_MOVILES_PARTE_WEB.Controllers
         {
             if (!string.IsNullOrEmpty(HttpContext.Session.GetString("UsuarioLogueado")))
             {
+                var rol = HttpContext.Session.GetString("Rol") ?? "";
+                if (rol == "Profesor" || rol == "Entrenador")
+                {
+                    return RedirectToAction("Index", "Clases");
+                }
                 return RedirectToAction("Index", "Home");
             }
             return View();
@@ -61,6 +66,11 @@ namespace PROYECTO_MOVILES_PARTE_WEB.Controllers
             HttpContext.Session.SetString("Rol", usuario.Rol);
             HttpContext.Session.SetString("IdUsuario", usuario.IdUsuario.ToString());
             HttpContext.Session.SetString("EsAdmin", usuario.Rol == "Administrador" ? "true" : "false");
+
+            if (usuario.Rol == "Profesor" || usuario.Rol == "Entrenador")
+            {
+                return RedirectToAction("Index", "Clases");
+            }
 
             return RedirectToAction("Index", "Home");
         }

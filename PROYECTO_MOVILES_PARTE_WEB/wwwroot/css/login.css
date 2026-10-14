@@ -1,0 +1,35 @@
+body {
+    background: linear-gradient(135deg, #1e824c 0%, #145a32 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 15px;
+}
+
+.login-card {
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    max-width: 420px;
+    width: 100%;
+    padding: 40px 30px;
+}
+
+.btn-green {
+    background-color: #1e824c;
+    color: #ffffff;
+    font-weight: 600;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    width: 100%;
+    transition: all 0.2s;
+}
+
+.btn-green:hover {
+    background-color: #145a32;
+    color: #ffffff;
+}

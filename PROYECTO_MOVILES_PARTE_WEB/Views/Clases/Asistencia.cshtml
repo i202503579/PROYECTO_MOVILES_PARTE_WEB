@@ -102,19 +102,19 @@
                                             <div class="form-check form-check-inline m-0">
                                                 <input class="btn-check" type="radio" name="alumnos[@i].EstadoAsistencia" id="pres_@i" value="Presente" @(a.EstadoAsistencia == "Presente" ? "checked" : "")>
                                                 <label class="btn btn-sm btn-outline-success px-2 py-1" for="pres_@i">
-                                                    Presente
+                                                     Presente
                                                 </label>
                                             </div>
                                             <div class="form-check form-check-inline m-0">
-                                                <input class="btn-check" type="radio" name="alumnos[@i].EstadoAsistencia" id="tarde_@i" value="Tardanza" @(a.EstadoAsistencia == "Tardanza" ? "checked" : "")>
-                                                <label class="btn btn-sm btn-outline-warning px-2 py-1" for="tarde_@i">
-                                                    Tardanza
+                                                <input class="btn-check" type="radio" name="alumnos[@i].EstadoAsistencia" id="falta_@i" value="Falta" @(a.EstadoAsistencia == "Falta" ? "checked" : "")>
+                                                <label class="btn btn-sm btn-outline-danger px-2 py-1" for="falta_@i">
+                                                     Falta
                                                 </label>
                                             </div>
                                             <div class="form-check form-check-inline m-0">
-                                                <input class="btn-check" type="radio" name="alumnos[@i].EstadoAsistencia" id="aus_@i" value="Ausente" @(a.EstadoAsistencia == "Ausente" ? "checked" : "")>
-                                                <label class="btn btn-sm btn-outline-danger px-2 py-1" for="aus_@i">
-                                                    Ausente
+                                                <input class="btn-check" type="radio" name="alumnos[@i].EstadoAsistencia" id="just_@i" value="Justificado" @(a.EstadoAsistencia == "Justificado" ? "checked" : "")>
+                                                <label class="btn btn-sm btn-outline-warning px-2 py-1" for="just_@i">
+                                                     Justificado
                                                 </label>
                                             </div>
                                         </div>

@@ -17,6 +17,12 @@ namespace PROYECTO_MOVILES_PARTE_WEB.Controllers
 
         public async Task<IActionResult> Index(string? buscar)
         {
+            var rol = HttpContext.Session.GetString("Rol") ?? "";
+            if (rol == "Profesor" || rol == "Entrenador")
+            {
+                return RedirectToAction("Index", "Clases");
+            }
+
             var clientes = await _api.GetListAsync<Cliente>("ClientesAPI/GetClientes");
             if (!string.IsNullOrEmpty(buscar))
             {
@@ -31,12 +37,24 @@ namespace PROYECTO_MOVILES_PARTE_WEB.Controllers
         [HttpGet]
         public IActionResult Crear()
         {
+            var rol = HttpContext.Session.GetString("Rol") ?? "";
+            if (rol == "Profesor" || rol == "Entrenador")
+            {
+                return RedirectToAction("Index", "Clases");
+            }
+
             return View(new Cliente { ActivoCliente = true, TipoCliente = "Particular" });
         }
 
         [HttpPost]
         public async Task<IActionResult> Crear(Cliente model)
         {
+            var rol = HttpContext.Session.GetString("Rol") ?? "";
+            if (rol == "Profesor" || rol == "Entrenador")
+            {
+                return RedirectToAction("Index", "Clases");
+            }
+
             var (ok, mensaje) = await _api.PostAsync("ClientesAPI", model);
             if (ok)
             {
@@ -51,6 +69,12 @@ namespace PROYECTO_MOVILES_PARTE_WEB.Controllers
         [HttpGet]
         public async Task<IActionResult> Editar(int id)
         {
+            var rol = HttpContext.Session.GetString("Rol") ?? "";
+            if (rol == "Profesor" || rol == "Entrenador")
+            {
+                return RedirectToAction("Index", "Clases");
+            }
+
             var cliente = await _api.GetByIdAsync<Cliente>($"ClientesAPI/GetCliente/{id}");
             if (cliente == null) return NotFound();
             return View(cliente);
@@ -59,6 +83,12 @@ namespace PROYECTO_MOVILES_PARTE_WEB.Controllers
         [HttpPost]
         public async Task<IActionResult> Editar(Cliente model)
         {
+            var rol = HttpContext.Session.GetString("Rol") ?? "";
+            if (rol == "Profesor" || rol == "Entrenador")
+            {
+                return RedirectToAction("Index", "Clases");
+            }
+
             var (ok, mensaje) = await _api.PutAsync("ClientesAPI", model);
             if (ok)
             {

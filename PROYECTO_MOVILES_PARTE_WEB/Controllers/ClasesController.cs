@@ -18,9 +18,17 @@ namespace PROYECTO_MOVILES_PARTE_WEB.Controllers
 
         public async Task<IActionResult> Index()
         {
+            var rol = HttpContext.Session.GetString("Rol") ?? "";
+            int.TryParse(HttpContext.Session.GetString("IdUsuario"), out int idUsuarioLogueado);
+
             var clases = await _api.GetListAsync<Clase>("ClasesAPI/GetClases");
             var usuarios = await _api.GetListAsync<Usuario>("UsuariosAPI/GetUsuarios");
             var canchas = await _api.GetListAsync<Cancha>("CanchasAPI/GetCanchas");
+
+            if (rol == "Profesor" || rol == "Entrenador")
+            {
+                clases = clases.Where(c => c.IdUsuario == idUsuarioLogueado).ToList();
+            }
 
             foreach (var c in clases)
             {
@@ -34,6 +42,13 @@ namespace PROYECTO_MOVILES_PARTE_WEB.Controllers
         [HttpGet]
         public async Task<IActionResult> Crear()
         {
+            var rol = HttpContext.Session.GetString("Rol") ?? "";
+            if (rol == "Profesor" || rol == "Entrenador")
+            {
+                TempData["Error"] = "No tiene permisos para programar clases.";
+                return RedirectToAction("Index");
+            }
+
             await CargarCombos();
             var clase = new Clase
             {
@@ -49,6 +64,13 @@ namespace PROYECTO_MOVILES_PARTE_WEB.Controllers
         [HttpPost]
         public async Task<IActionResult> Crear(Clase model)
         {
+            var rol = HttpContext.Session.GetString("Rol") ?? "";
+            if (rol == "Profesor" || rol == "Entrenador")
+            {
+                TempData["Error"] = "No tiene permisos para programar clases.";
+                return RedirectToAction("Index");
+            }
+
             var (ok, mensaje) = await _api.PostAsync("ClasesAPI", model);
             if (ok)
             {
@@ -64,6 +86,13 @@ namespace PROYECTO_MOVILES_PARTE_WEB.Controllers
         [HttpGet]
         public async Task<IActionResult> Editar(int id)
         {
+            var rol = HttpContext.Session.GetString("Rol") ?? "";
+            if (rol == "Profesor" || rol == "Entrenador")
+            {
+                TempData["Error"] = "No tiene permisos para modificar clases.";
+                return RedirectToAction("Index");
+            }
+
             var clase = await _api.GetByIdAsync<Clase>($"ClasesAPI/GetClase/{id}");
             if (clase == null) return NotFound();
 
@@ -74,6 +103,13 @@ namespace PROYECTO_MOVILES_PARTE_WEB.Controllers
         [HttpPost]
         public async Task<IActionResult> Editar(Clase model)
         {
+            var rol = HttpContext.Session.GetString("Rol") ?? "";
+            if (rol == "Profesor" || rol == "Entrenador")
+            {
+                TempData["Error"] = "No tiene permisos para modificar clases.";
+                return RedirectToAction("Index");
+            }
+
             var (ok, mensaje) = await _api.PutAsync("ClasesAPI", model);
             if (ok)
             {
@@ -91,6 +127,15 @@ namespace PROYECTO_MOVILES_PARTE_WEB.Controllers
         {
             var clase = await _api.GetByIdAsync<Clase>($"ClasesAPI/GetClase/{id}");
             if (clase == null) return NotFound();
+
+            var rol = HttpContext.Session.GetString("Rol") ?? "";
+            int.TryParse(HttpContext.Session.GetString("IdUsuario"), out int idUsuarioLogueado);
+
+            if ((rol == "Profesor" || rol == "Entrenador") && clase.IdUsuario != idUsuarioLogueado)
+            {
+                TempData["Error"] = "Solo puede gestionar la asistencia de sus propias clases.";
+                return RedirectToAction("Index");
+            }
 
             var usuarios = await _api.GetListAsync<Usuario>("UsuariosAPI/GetUsuarios");
             var canchas = await _api.GetListAsync<Cancha>("CanchasAPI/GetCanchas");
@@ -126,36 +171,70 @@ namespace PROYECTO_MOVILES_PARTE_WEB.Controllers
         [HttpPost]
         public async Task<IActionResult> GuardarAsistencia(int idClase, List<AsistenciaItemViewModel> alumnos, bool marcarCompletada = false)
         {
+            var rol = HttpContext.Session.GetString("Rol") ?? "";
+            int.TryParse(HttpContext.Session.GetString("IdUsuario"), out int idUsuarioLogueado);
+
+            var clase = await _api.GetByIdAsync<Clase>($"ClasesAPI/GetClase/{idClase}");
+            if (clase == null) return NotFound();
+
+            if ((rol == "Profesor" || rol == "Entrenador") && clase.IdUsuario != idUsuarioLogueado)
+            {
+                TempData["Error"] = "No tiene permisos para modificar la asistencia de esta clase.";
+                return RedirectToAction("Index");
+            }
+
             if (alumnos != null && alumnos.Count > 0)
             {
+                var asistencias = await _api.GetListAsync<Asistencia>("AsistenciasAPI/GetAsistencias");
+                var asistenciasDeLaClase = asistencias.Where(a => a.IdClase == idClase).ToList();
+
                 foreach (var item in alumnos)
                 {
+                    var estado = item.EstadoAsistencia;
+                    if (string.IsNullOrEmpty(estado)) estado = "Presente";
+                    if (estado == "Tardanza") estado = "Justificado";
+                    if (estado == "Ausente") estado = "Falta";
+
+                    var regExistente = asistenciasDeLaClase.FirstOrDefault(a => a.IdAlumno == item.IdAlumno);
+                    var idAsist = regExistente?.IdAsistencia ?? (item.IdAsistencia ?? 0);
+
                     var reg = new Asistencia
                     {
-                        IdAsistencia = item.IdAsistencia ?? 0,
+                        IdAsistencia = idAsist,
                         IdClase = idClase,
                         IdAlumno = item.IdAlumno,
-                        EstadoAsistencia = string.IsNullOrEmpty(item.EstadoAsistencia) ? "Presente" : item.EstadoAsistencia
+                        EstadoAsistencia = estado
                     };
 
-                    if (item.IdAsistencia.HasValue && item.IdAsistencia.Value > 0)
+                    if (idAsist > 0)
                     {
-                        await _api.PutAsync("AsistenciasAPI", reg);
+                        var (ok, error) = await _api.PutAsync("AsistenciasAPI", reg);
+                        if (!ok)
+                        {
+                            TempData["Error"] = $"Error al actualizar asistencia: {error}";
+                            return RedirectToAction("Asistencia", new { id = idClase });
+                        }
                     }
                     else
                     {
-                        await _api.PostAsync("AsistenciasAPI", reg);
+                        var (ok, error) = await _api.PostAsync("AsistenciasAPI", reg);
+                        if (!ok)
+                        {
+                            TempData["Error"] = $"Error al registrar asistencia: {error}";
+                            return RedirectToAction("Asistencia", new { id = idClase });
+                        }
                     }
                 }
             }
 
             if (marcarCompletada)
             {
-                var clase = await _api.GetByIdAsync<Clase>($"ClasesAPI/GetClase/{idClase}");
-                if (clase != null)
+                clase.EstadoClase = "Completada";
+                var (ok, error) = await _api.PutAsync("ClasesAPI", clase);
+                if (!ok)
                 {
-                    clase.EstadoClase = "Completada";
-                    await _api.PutAsync("ClasesAPI", clase);
+                    TempData["Error"] = $"Asistencias guardadas, pero no se pudo completar la clase: {error}";
+                    return RedirectToAction("Index");
                 }
             }
 
@@ -166,6 +245,13 @@ namespace PROYECTO_MOVILES_PARTE_WEB.Controllers
         [HttpPost]
         public async Task<IActionResult> Cancelar(int id)
         {
+            var rol = HttpContext.Session.GetString("Rol") ?? "";
+            if (rol == "Profesor" || rol == "Entrenador")
+            {
+                TempData["Error"] = "No tiene permisos para cancelar clases.";
+                return RedirectToAction("Index");
+            }
+
             var clase = await _api.GetByIdAsync<Clase>($"ClasesAPI/GetClase/{id}");
             if (clase != null)
             {

@@ -18,6 +18,12 @@ namespace PROYECTO_MOVILES_PARTE_WEB.Controllers
 
         public async Task<IActionResult> Index(int? idCancha, int? semana)
         {
+            var rol = HttpContext.Session.GetString("Rol") ?? "";
+            if (rol == "Profesor" || rol == "Entrenador")
+            {
+                return RedirectToAction("Index", "Clases");
+            }
+
             var vm = new DashboardViewModel();
 
             //Obtener API

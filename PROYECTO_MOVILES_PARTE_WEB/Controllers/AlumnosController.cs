@@ -18,8 +18,16 @@ namespace PROYECTO_MOVILES_PARTE_WEB.Controllers
 
         public async Task<IActionResult> Index()
         {
+            var rol = HttpContext.Session.GetString("Rol") ?? "";
+            int.TryParse(HttpContext.Session.GetString("IdUsuario"), out int idUsuarioLogueado);
+
             var alumnos = await _api.GetListAsync<Alumno>("AlumnosAPI/GetAlumnos");
             var usuarios = await _api.GetListAsync<Usuario>("UsuariosAPI/GetUsuarios");
+
+            if (rol == "Profesor" || rol == "Entrenador")
+            {
+                alumnos = alumnos.Where(a => a.IdUsuario == idUsuarioLogueado).ToList();
+            }
 
             foreach (var a in alumnos)
             {
@@ -32,6 +40,13 @@ namespace PROYECTO_MOVILES_PARTE_WEB.Controllers
         [HttpGet]
         public async Task<IActionResult> Crear()
         {
+            var rol = HttpContext.Session.GetString("Rol") ?? "";
+            if (rol == "Profesor" || rol == "Entrenador")
+            {
+                TempData["Error"] = "No tiene permisos para matricular alumnos.";
+                return RedirectToAction("Index");
+            }
+
             await CargarProfesores();
             return View(new Alumno { ActivoAlumno = true, FechaIngreso = DateOnly.FromDateTime(DateTime.Now) });
         }
@@ -39,6 +54,13 @@ namespace PROYECTO_MOVILES_PARTE_WEB.Controllers
         [HttpPost]
         public async Task<IActionResult> Crear(Alumno model)
         {
+            var rol = HttpContext.Session.GetString("Rol") ?? "";
+            if (rol == "Profesor" || rol == "Entrenador")
+            {
+                TempData["Error"] = "No tiene permisos para matricular alumnos.";
+                return RedirectToAction("Index");
+            }
+
             var (ok, mensaje) = await _api.PostAsync("AlumnosAPI", model);
             if (ok)
             {
@@ -54,6 +76,13 @@ namespace PROYECTO_MOVILES_PARTE_WEB.Controllers
         [HttpGet]
         public async Task<IActionResult> Editar(int id)
         {
+            var rol = HttpContext.Session.GetString("Rol") ?? "";
+            if (rol == "Profesor" || rol == "Entrenador")
+            {
+                TempData["Error"] = "No tiene permisos para modificar datos de alumnos.";
+                return RedirectToAction("Index");
+            }
+
             var alumno = await _api.GetByIdAsync<Alumno>($"AlumnosAPI/GetAlumno/{id}");
             if (alumno == null) return NotFound();
 
@@ -64,6 +93,13 @@ namespace PROYECTO_MOVILES_PARTE_WEB.Controllers
         [HttpPost]
         public async Task<IActionResult> Editar(Alumno model)
         {
+            var rol = HttpContext.Session.GetString("Rol") ?? "";
+            if (rol == "Profesor" || rol == "Entrenador")
+            {
+                TempData["Error"] = "No tiene permisos para modificar datos de alumnos.";
+                return RedirectToAction("Index");
+            }
+
             var (ok, mensaje) = await _api.PutAsync("AlumnosAPI", model);
             if (ok)
             {

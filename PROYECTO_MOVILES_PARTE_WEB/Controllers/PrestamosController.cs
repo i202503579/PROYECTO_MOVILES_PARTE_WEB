@@ -17,6 +17,12 @@ namespace PROYECTO_MOVILES_PARTE_WEB.Controllers
 
         public async Task<IActionResult> Index()
         {
+            var rol = HttpContext.Session.GetString("Rol") ?? "";
+            if (rol == "Profesor" || rol == "Entrenador")
+            {
+                return RedirectToAction("Index", "Clases");
+            }
+
             var prestamos = await _api.GetListAsync<PrestamoBalon>("PrestamosBalonsAPI/GetPrestamos");
             return View(prestamos.OrderByDescending(p => p.FechaEntrega).ToList());
         }
@@ -24,6 +30,12 @@ namespace PROYECTO_MOVILES_PARTE_WEB.Controllers
         [HttpGet]
         public async Task<IActionResult> Crear()
         {
+            var rol = HttpContext.Session.GetString("Rol") ?? "";
+            if (rol == "Profesor" || rol == "Entrenador")
+            {
+                return RedirectToAction("Index", "Clases");
+            }
+
             await CargarCombos();
             return View(new PrestamoBalon { FechaEntrega = DateTime.Now, EstadoPrestamo = "Pendiente" });
         }
@@ -31,6 +43,12 @@ namespace PROYECTO_MOVILES_PARTE_WEB.Controllers
         [HttpPost]
         public async Task<IActionResult> Crear(PrestamoBalon model)
         {
+            var rol = HttpContext.Session.GetString("Rol") ?? "";
+            if (rol == "Profesor" || rol == "Entrenador")
+            {
+                return RedirectToAction("Index", "Clases");
+            }
+
             if (string.IsNullOrWhiteSpace(model.EstadoPrestamo))
             {
                 model.EstadoPrestamo = "Pendiente";
@@ -51,6 +69,12 @@ namespace PROYECTO_MOVILES_PARTE_WEB.Controllers
         [HttpGet]
         public async Task<IActionResult> Editar(int id)
         {
+            var rol = HttpContext.Session.GetString("Rol") ?? "";
+            if (rol == "Profesor" || rol == "Entrenador")
+            {
+                return RedirectToAction("Index", "Clases");
+            }
+
             var prestamo = await _api.GetByIdAsync<PrestamoBalon>($"PrestamosBalonsAPI/GetPrestamo/{id}");
             if (prestamo == null) return NotFound();
 
@@ -61,6 +85,12 @@ namespace PROYECTO_MOVILES_PARTE_WEB.Controllers
         [HttpPost]
         public async Task<IActionResult> Editar(PrestamoBalon model)
         {
+            var rol = HttpContext.Session.GetString("Rol") ?? "";
+            if (rol == "Profesor" || rol == "Entrenador")
+            {
+                return RedirectToAction("Index", "Clases");
+            }
+
             if (model.FechaDevolucion.HasValue && model.FechaDevolucion.Value < model.FechaEntrega)
             {
                 ViewBag.Error = "La fecha de devolución no puede ser anterior a la fecha de entrega.";
@@ -89,6 +119,12 @@ namespace PROYECTO_MOVILES_PARTE_WEB.Controllers
         [HttpPost]
         public async Task<IActionResult> CambiarEstado(int id, string nuevoEstado)
         {
+            var rol = HttpContext.Session.GetString("Rol") ?? "";
+            if (rol == "Profesor" || rol == "Entrenador")
+            {
+                return RedirectToAction("Index", "Clases");
+            }
+
             var prestamo = await _api.GetByIdAsync<PrestamoBalon>($"PrestamosBalonsAPI/GetPrestamo/{id}");
             if (prestamo != null)
             {
@@ -119,6 +155,12 @@ namespace PROYECTO_MOVILES_PARTE_WEB.Controllers
         [HttpPost]
         public async Task<IActionResult> Eliminar(int id)
         {
+            var rol = HttpContext.Session.GetString("Rol") ?? "";
+            if (rol == "Profesor" || rol == "Entrenador")
+            {
+                return RedirectToAction("Index", "Clases");
+            }
+
             var (ok, error) = await _api.DeleteAsync($"PrestamosBalonsAPI/DeletePrestamo/{id}");
             if (ok)
             {

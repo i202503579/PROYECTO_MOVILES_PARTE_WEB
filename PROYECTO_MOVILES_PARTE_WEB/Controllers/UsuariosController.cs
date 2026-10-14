@@ -17,6 +17,13 @@ namespace PROYECTO_MOVILES_PARTE_WEB.Controllers
 
         public async Task<IActionResult> Index()
         {
+            var rol = HttpContext.Session.GetString("Rol") ?? "";
+            if (rol != "Administrador")
+            {
+                TempData["Error"] = "Acceso exclusivo para administradores.";
+                return RedirectToAction("Index", rol == "Profesor" || rol == "Entrenador" ? "Clases" : "Home");
+            }
+
             var usuarios = await _api.GetListAsync<Usuario>("UsuariosAPI/GetUsuarios");
             return View(usuarios);
         }
@@ -24,12 +31,26 @@ namespace PROYECTO_MOVILES_PARTE_WEB.Controllers
         [HttpGet]
         public IActionResult Crear()
         {
+            var rol = HttpContext.Session.GetString("Rol") ?? "";
+            if (rol != "Administrador")
+            {
+                TempData["Error"] = "Acceso exclusivo para administradores.";
+                return RedirectToAction("Index", rol == "Profesor" || rol == "Entrenador" ? "Clases" : "Home");
+            }
+
             return View(new Usuario { ActivoUsuario = true, Rol = "Operador" });
         }
 
         [HttpPost]
         public async Task<IActionResult> Crear(Usuario model)
         {
+            var rol = HttpContext.Session.GetString("Rol") ?? "";
+            if (rol != "Administrador")
+            {
+                TempData["Error"] = "Acceso exclusivo para administradores.";
+                return RedirectToAction("Index", rol == "Profesor" || rol == "Entrenador" ? "Clases" : "Home");
+            }
+
             var (ok, mensaje) = await _api.PostAsync("UsuariosAPI", model);
             if (ok)
             {
@@ -44,6 +65,13 @@ namespace PROYECTO_MOVILES_PARTE_WEB.Controllers
         [HttpGet]
         public async Task<IActionResult> Editar(int id)
         {
+            var rol = HttpContext.Session.GetString("Rol") ?? "";
+            if (rol != "Administrador")
+            {
+                TempData["Error"] = "Acceso exclusivo para administradores.";
+                return RedirectToAction("Index", rol == "Profesor" || rol == "Entrenador" ? "Clases" : "Home");
+            }
+
             var usuario = await _api.GetByIdAsync<Usuario>($"UsuariosAPI/GetUsuario/{id}");
             if (usuario == null) return NotFound();
             return View(usuario);
@@ -52,6 +80,13 @@ namespace PROYECTO_MOVILES_PARTE_WEB.Controllers
         [HttpPost]
         public async Task<IActionResult> Editar(Usuario model)
         {
+            var rol = HttpContext.Session.GetString("Rol") ?? "";
+            if (rol != "Administrador")
+            {
+                TempData["Error"] = "Acceso exclusivo para administradores.";
+                return RedirectToAction("Index", rol == "Profesor" || rol == "Entrenador" ? "Clases" : "Home");
+            }
+
             var (ok, mensaje) = await _api.PutAsync("UsuariosAPI", model);
             if (ok)
             {
@@ -66,6 +101,13 @@ namespace PROYECTO_MOVILES_PARTE_WEB.Controllers
         [HttpPost]
         public async Task<IActionResult> CambiarEstado(int id)
         {
+            var rol = HttpContext.Session.GetString("Rol") ?? "";
+            if (rol != "Administrador")
+            {
+                TempData["Error"] = "Acceso exclusivo para administradores.";
+                return RedirectToAction("Index", rol == "Profesor" || rol == "Entrenador" ? "Clases" : "Home");
+            }
+
             var usuario = await _api.GetByIdAsync<Usuario>($"UsuariosAPI/GetUsuario/{id}");
             if (usuario != null)
             {

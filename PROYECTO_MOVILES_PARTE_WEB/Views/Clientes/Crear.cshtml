@@ -17,7 +17,7 @@
             <div class="row g-3">
                 <div class="col-12">
                     <label class="form-label fw-semibold">Nombre Completo / Empresa <span class="text-danger">*</span></label>
-                    <input asp-for="NombreCliente" class="form-control" placeholder="Ej: Juan Pérez o Club Los Álamos" required />
+                    <input asp-for="NombreCliente" class="form-control" placeholder="Ej: Juan Pérez o Club Los Álamos" pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s\.\-]+" title="Solo se permiten letras y espacios" oninput="this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s\.\-]/g, '')" required />
                 </div>
 
                 <div class="col-md-6">
@@ -30,12 +30,12 @@
 
                 <div class="col-md-6">
                     <label class="form-label fw-semibold">Número de Documento (DNI/RUC) <span class="text-danger">*</span></label>
-                    <input asp-for="NumeroDocumento" class="form-control" placeholder="Ej: 71234567 o 20601234567" required />
+                    <input asp-for="NumeroDocumento" class="form-control" placeholder="Ej: 71234567 o 20601234567" maxlength="11" minlength="8" pattern="[0-9]{8,11}" title="Debe ingresar entre 8 y 11 dígitos numéricos" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required />
                 </div>
 
                 <div class="col-md-6">
                     <label class="form-label fw-semibold">Teléfono / Celular</label>
-                    <input asp-for="TelefonoCliente" class="form-control" placeholder="Ej: 987111222" />
+                    <input asp-for="TelefonoCliente" class="form-control" placeholder="Ej: 987111222" maxlength="9" pattern="9[0-9]{8}" title="Debe tener 9 dígitos y comenzar con 9" oninput="this.value = this.value.replace(/[^0-9]/g, '')" />
                 </div>
 
                 <div class="col-md-6 d-flex align-items-center mt-4">

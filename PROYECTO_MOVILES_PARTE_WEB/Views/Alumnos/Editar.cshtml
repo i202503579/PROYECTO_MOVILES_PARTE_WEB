@@ -19,12 +19,12 @@
             <div class="row g-3">
                 <div class="col-12">
                     <label class="form-label fw-semibold">Nombre del Alumno <span class="text-danger">*</span></label>
-                    <input asp-for="NombreAlumno" class="form-control" required />
+                    <input asp-for="NombreAlumno" class="form-control" pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+" title="Solo se permiten letras y espacios" oninput="this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '')" required />
                 </div>
 
                 <div class="col-md-6">
                     <label class="form-label fw-semibold">Teléfono del Apoderado</label>
-                    <input asp-for="TelefonoApoderado" class="form-control" />
+                    <input asp-for="TelefonoApoderado" class="form-control" maxlength="9" pattern="9[0-9]{8}" title="Debe tener 9 dígitos y comenzar con 9" oninput="this.value = this.value.replace(/[^0-9]/g, '')" />
                 </div>
 
                 <div class="col-md-6">

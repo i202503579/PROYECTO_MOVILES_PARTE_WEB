@@ -18,6 +18,12 @@ namespace PROYECTO_MOVILES_PARTE_WEB.Controllers
 
         public async Task<IActionResult> Index(string? estado, int? idCancha)
         {
+            var rol = HttpContext.Session.GetString("Rol") ?? "";
+            if (rol == "Profesor" || rol == "Entrenador")
+            {
+                return RedirectToAction("Index", "Clases");
+            }
+
             var reservas = await _api.GetListAsync<Reserva>("ReservasAPI/GetReservas");
             var clientes = await _api.GetListAsync<Cliente>("ClientesAPI/GetClientes");
             var canchas = await _api.GetListAsync<Cancha>("CanchasAPI/GetCanchas");
@@ -52,6 +58,12 @@ namespace PROYECTO_MOVILES_PARTE_WEB.Controllers
         [HttpGet]
         public async Task<IActionResult> Crear()
         {
+            var rol = HttpContext.Session.GetString("Rol") ?? "";
+            if (rol == "Profesor" || rol == "Entrenador")
+            {
+                return RedirectToAction("Index", "Clases");
+            }
+
             await CargarCombos();
             var reserva = new Reserva
             {
@@ -65,10 +77,37 @@ namespace PROYECTO_MOVILES_PARTE_WEB.Controllers
         [HttpPost]
         public async Task<IActionResult> Crear(Reserva model)
         {
+            var rol = HttpContext.Session.GetString("Rol") ?? "";
+            if (rol == "Profesor" || rol == "Entrenador")
+            {
+                return RedirectToAction("Index", "Clases");
+            }
+
             var idUsuarioSesion = HttpContext.Session.GetString("IdUsuario");
             if (model.IdUsuario == 0 && int.TryParse(idUsuarioSesion, out int idU))
             {
                 model.IdUsuario = idU;
+            }
+
+            if (model.HoraFin <= model.HoraInicio)
+            {
+                model.HoraFin = model.HoraInicio.AddHours(1);
+            }
+
+            if (model.EstadoReserva != "Cancelada")
+            {
+                if (model.MontoRecibido >= model.PrecioReserva && model.PrecioReserva > 0)
+                {
+                    model.EstadoReserva = "Completada";
+                }
+                else if (model.MontoRecibido > 0)
+                {
+                    model.EstadoReserva = "Confirmada";
+                }
+                else
+                {
+                    model.EstadoReserva = "Pendiente";
+                }
             }
 
             var (ok, mensaje) = await _api.PostAsync("ReservasAPI", model);
@@ -86,6 +125,12 @@ namespace PROYECTO_MOVILES_PARTE_WEB.Controllers
         [HttpGet]
         public async Task<IActionResult> Editar(int id)
         {
+            var rol = HttpContext.Session.GetString("Rol") ?? "";
+            if (rol == "Profesor" || rol == "Entrenador")
+            {
+                return RedirectToAction("Index", "Clases");
+            }
+
             var reserva = await _api.GetByIdAsync<Reserva>($"ReservasAPI/GetReserva/{id}");
             if (reserva == null)
             {
@@ -99,6 +144,33 @@ namespace PROYECTO_MOVILES_PARTE_WEB.Controllers
         [HttpPost]
         public async Task<IActionResult> Editar(Reserva model)
         {
+            var rol = HttpContext.Session.GetString("Rol") ?? "";
+            if (rol == "Profesor" || rol == "Entrenador")
+            {
+                return RedirectToAction("Index", "Clases");
+            }
+
+            if (model.HoraFin <= model.HoraInicio)
+            {
+                model.HoraFin = model.HoraInicio.AddHours(1);
+            }
+
+            if (model.EstadoReserva != "Cancelada")
+            {
+                if (model.MontoRecibido >= model.PrecioReserva && model.PrecioReserva > 0)
+                {
+                    model.EstadoReserva = "Completada";
+                }
+                else if (model.MontoRecibido > 0)
+                {
+                    model.EstadoReserva = "Confirmada";
+                }
+                else
+                {
+                    model.EstadoReserva = "Pendiente";
+                }
+            }
+
             var (ok, mensaje) = await _api.PutAsync("ReservasAPI", model);
             if (ok)
             {
@@ -114,6 +186,12 @@ namespace PROYECTO_MOVILES_PARTE_WEB.Controllers
         [HttpPost]
         public async Task<IActionResult> Cancelar(int id)
         {
+            var rol = HttpContext.Session.GetString("Rol") ?? "";
+            if (rol == "Profesor" || rol == "Entrenador")
+            {
+                return RedirectToAction("Index", "Clases");
+            }
+
             var reserva = await _api.GetByIdAsync<Reserva>($"ReservasAPI/GetReserva/{id}");
             if (reserva != null)
             {
@@ -128,6 +206,12 @@ namespace PROYECTO_MOVILES_PARTE_WEB.Controllers
         [HttpGet]
         public async Task<IActionResult> ReporteImprimible()
         {
+            var rol = HttpContext.Session.GetString("Rol") ?? "";
+            if (rol == "Profesor" || rol == "Entrenador")
+            {
+                return RedirectToAction("Index", "Clases");
+            }
+
             var reservas = await _api.GetListAsync<Reserva>("ReservasAPI/GetReservas");
             var clientes = await _api.GetListAsync<Cliente>("ClientesAPI/GetClientes");
             var canchas = await _api.GetListAsync<Cancha>("CanchasAPI/GetCanchas");

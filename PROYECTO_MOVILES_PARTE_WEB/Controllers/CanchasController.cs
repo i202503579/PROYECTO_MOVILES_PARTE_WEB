@@ -17,6 +17,13 @@ namespace PROYECTO_MOVILES_PARTE_WEB.Controllers
 
         public async Task<IActionResult> Index()
         {
+            var rol = HttpContext.Session.GetString("Rol") ?? "";
+            if (rol != "Administrador")
+            {
+                TempData["Error"] = "Acceso exclusivo para administradores.";
+                return RedirectToAction("Index", rol == "Profesor" || rol == "Entrenador" ? "Clases" : "Home");
+            }
+
             var canchas = await _api.GetListAsync<Cancha>("CanchasAPI/GetCanchas");
             return View(canchas);
         }
@@ -24,12 +31,26 @@ namespace PROYECTO_MOVILES_PARTE_WEB.Controllers
         [HttpGet]
         public IActionResult Crear()
         {
+            var rol = HttpContext.Session.GetString("Rol") ?? "";
+            if (rol != "Administrador")
+            {
+                TempData["Error"] = "Acceso exclusivo para administradores.";
+                return RedirectToAction("Index", rol == "Profesor" || rol == "Entrenador" ? "Clases" : "Home");
+            }
+
             return View(new Cancha { ActivoCancha = true });
         }
 
         [HttpPost]
         public async Task<IActionResult> Crear(Cancha model)
         {
+            var rol = HttpContext.Session.GetString("Rol") ?? "";
+            if (rol != "Administrador")
+            {
+                TempData["Error"] = "Acceso exclusivo para administradores.";
+                return RedirectToAction("Index", rol == "Profesor" || rol == "Entrenador" ? "Clases" : "Home");
+            }
+
             var (ok, mensaje) = await _api.PostAsync("CanchasAPI", model);
             if (ok)
             {
@@ -44,6 +65,13 @@ namespace PROYECTO_MOVILES_PARTE_WEB.Controllers
         [HttpGet]
         public async Task<IActionResult> Editar(int id)
         {
+            var rol = HttpContext.Session.GetString("Rol") ?? "";
+            if (rol != "Administrador")
+            {
+                TempData["Error"] = "Acceso exclusivo para administradores.";
+                return RedirectToAction("Index", rol == "Profesor" || rol == "Entrenador" ? "Clases" : "Home");
+            }
+
             var cancha = await _api.GetByIdAsync<Cancha>($"CanchasAPI/GetCancha/{id}");
             if (cancha == null) return NotFound();
             return View(cancha);
@@ -52,6 +80,13 @@ namespace PROYECTO_MOVILES_PARTE_WEB.Controllers
         [HttpPost]
         public async Task<IActionResult> Editar(Cancha model)
         {
+            var rol = HttpContext.Session.GetString("Rol") ?? "";
+            if (rol != "Administrador")
+            {
+                TempData["Error"] = "Acceso exclusivo para administradores.";
+                return RedirectToAction("Index", rol == "Profesor" || rol == "Entrenador" ? "Clases" : "Home");
+            }
+
             var (ok, mensaje) = await _api.PutAsync("CanchasAPI", model);
             if (ok)
             {
@@ -66,6 +101,13 @@ namespace PROYECTO_MOVILES_PARTE_WEB.Controllers
         [HttpPost]
         public async Task<IActionResult> CambiarEstado(int id)
         {
+            var rol = HttpContext.Session.GetString("Rol") ?? "";
+            if (rol != "Administrador")
+            {
+                TempData["Error"] = "Acceso exclusivo para administradores.";
+                return RedirectToAction("Index", rol == "Profesor" || rol == "Entrenador" ? "Clases" : "Home");
+            }
+
             var cancha = await _api.GetByIdAsync<Cancha>($"CanchasAPI/GetCancha/{id}");
             if (cancha != null)
             {

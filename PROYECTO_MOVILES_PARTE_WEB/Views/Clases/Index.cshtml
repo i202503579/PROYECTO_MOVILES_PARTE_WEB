@@ -1,6 +1,10 @@
 @model List<PROYECTO_MOVILES_PARTE_WEB.Models.Clase>
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
 @{
     ViewData["Title"] = "Clases de Academia";
+    var rol = HttpContextAccessor.HttpContext?.Session.GetString("Rol") ?? "";
+    var esProfesor = rol == "Profesor" || rol == "Entrenador";
 }
 
 <div class="container-fluid px-0">
@@ -9,9 +13,12 @@
             <h3 class="fw-bold mb-1 text-dark"><i class="bi bi-mortarboard-fill text-warning me-2"></i> Clases de Academia</h3>
             <p class="text-muted mb-0">Programación de sesiones de entrenamiento, profesores y canchas asignadas</p>
         </div>
-        <a asp-action="Crear" class="btn btn-warning text-dark fw-semibold">
-            <i class="bi bi-plus-circle me-1"></i> Programar Clase
-        </a>
+        @if (!esProfesor)
+        {
+            <a asp-action="Crear" class="btn btn-warning text-dark fw-semibold">
+                <i class="bi bi-plus-circle me-1"></i> Programar Clase
+            </a>
+        }
     </div>
 
     <div class="card card-custom p-3">
@@ -72,16 +79,19 @@
                                     <a asp-action="Asistencia" asp-route-id="@c.IdClase" class="btn btn-sm btn-outline-success" title="Pasar Asistencia (RN02)">
                                         <i class="bi bi-clipboard-check me-1"></i> Asistencia
                                     </a>
-                                    <a asp-action="Editar" asp-route-id="@c.IdClase" class="btn btn-sm btn-outline-primary" title="Editar">
-                                        <i class="bi bi-pencil"></i>
-                                    </a>
-                                    @if (c.EstadoClase != "Cancelada" && c.EstadoClase != "Completada")
+                                    @if (!esProfesor)
                                     {
-                                        <form asp-action="Cancelar" asp-route-id="@c.IdClase" method="post" class="d-inline" onsubmit="return confirm('¿Deseas cancelar esta sesión de clase?');">
-                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Cancelar">
-                                                <i class="bi bi-x-circle"></i>
-                                            </button>
-                                        </form>
+                                        <a asp-action="Editar" asp-route-id="@c.IdClase" class="btn btn-sm btn-outline-primary" title="Editar">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        @if (c.EstadoClase != "Cancelada" && c.EstadoClase != "Completada")
+                                        {
+                                            <form asp-action="Cancelar" asp-route-id="@c.IdClase" method="post" class="d-inline" onsubmit="return confirm('¿Deseas cancelar esta sesión de clase?');">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Cancelar">
+                                                    <i class="bi bi-x-circle"></i>
+                                                </button>
+                                            </form>
+                                        }
                                     }
                                 </div>
                             </td>

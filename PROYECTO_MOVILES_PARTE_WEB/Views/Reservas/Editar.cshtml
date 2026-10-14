@@ -1,6 +1,7 @@
 @model PROYECTO_MOVILES_PARTE_WEB.Models.Reserva
 @{
     ViewData["Title"] = "Editar Reserva #" + Model.IdReserva;
+    var duracionActual = (Model.HoraFin - Model.HoraInicio).TotalHours >= 1.5 ? 2 : 1;
 }
 
 <div class="container-fluid px-0" style="max-width: 800px;">
@@ -8,7 +9,7 @@
         <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
             <div>
                 <h4 class="fw-bold mb-1 text-dark"><i class="bi bi-pencil-square text-primary me-2"></i> Modificar Alquiler #@Model.IdReserva</h4>
-                <small class="text-muted">Actualizar datos de reserva, montos o estados</small>
+                <small class="text-muted">Actualizar datos de reserva o pagos</small>
             </div>
             <a asp-action="Index" class="btn btn-sm btn-outline-secondary">
                 <i class="bi bi-arrow-left me-1"></i> Volver
@@ -18,6 +19,8 @@
         <form asp-action="Editar" method="post">
             <input type="hidden" asp-for="IdReserva" />
             <input type="hidden" asp-for="IdUsuario" />
+            <input type="hidden" asp-for="HoraFin" id="inputFin" />
+            <input type="hidden" asp-for="EstadoReserva" id="inputEstadoReserva" />
 
             <div class="row g-3">
                 <div class="col-md-6">
@@ -41,68 +44,56 @@
                 </div>
 
                 <div class="col-md-6">
-                    <label class="form-label fw-semibold">Hora Inicio <span class="text-danger">*</span></label>
+                    <label class="form-label fw-semibold">Hora de Inicio <span class="text-danger">*</span></label>
                     <input asp-for="HoraInicio" id="inputInicio" type="datetime-local" class="form-control" required />
+                    <small class="text-muted d-block mt-1">Hora de inicio del partido</small>
                 </div>
 
                 <div class="col-md-6">
-                    <label class="form-label fw-semibold">Hora Fin <span class="text-danger">*</span></label>
-                    <input asp-for="HoraFin" id="inputFin" type="datetime-local" class="form-control" required />
-                </div>
+                    <label class="form-label fw-semibold">Duración del Alquiler <span class="text-danger">*</span></label>
+                    <div class="d-flex gap-2">
+                        <input type="radio" class="btn-check" name="duracionOpcion" id="btn1Hora" value="1" @(duracionActual == 1 ? "checked" : "") autocomplete="off" onchange="seleccionarDuracion(1)">
+                        <label class="btn btn-outline-success flex-fill py-2 fw-semibold" for="btn1Hora">
+                            <i class="bi bi-clock me-1"></i> 1 Hora
+                        </label>
 
-                <!-- Detalle de Duración y Tarifa -->
-                <div class="col-12" id="boxDetalleTiempo">
-                    <div class="alert alert-light border d-flex align-items-center justify-content-between p-2 mb-0">
-                        <div>
-                            <i class="bi bi-clock-history text-primary me-2"></i>
-                            <span class="fw-semibold">Duración calculada:</span> <span id="txtDuracion" class="badge bg-primary fs-6">1 hora</span>
-                            <span id="badgeAvisoMinimo" class="badge bg-warning text-dark ms-2" style="display: none;">
-                                <i class="bi bi-info-circle me-1"></i> Mínimo sugerido: 1 hora
-                            </span>
-                        </div>
-                        <div>
-                            <span class="text-muted small">Tarifa de cancha: </span><strong id="txtTarifaCancha" class="text-dark">S/ 0.00</strong>/hora
-                        </div>
+                        <input type="radio" class="btn-check" name="duracionOpcion" id="btn2Horas" value="2" @(duracionActual == 2 ? "checked" : "") autocomplete="off" onchange="seleccionarDuracion(2)">
+                        <label class="btn btn-outline-success flex-fill py-2 fw-semibold" for="btn2Horas">
+                            <i class="bi bi-clock-history me-1"></i> 2 Horas
+                        </label>
                     </div>
+                    <small class="text-muted d-block mt-1">
+                        Hora fin calculada: <strong id="lblHoraFinTexto" class="text-dark">@Model.HoraFin.ToString("dd/MM/yyyy HH:mm")</strong>
+                    </small>
                 </div>
 
-                <div class="col-md-4">
-                    <label class="form-label fw-semibold">Precio Total (S/) <span class="text-danger">*</span></label>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Precio Total (S/)</label>
                     <div class="input-group">
                         <span class="input-group-text bg-light fw-bold">S/</span>
                         <input asp-for="PrecioReserva" id="inputPrecioTotal" type="number" step="0.5" class="form-control fw-bold text-success fs-5 bg-light" readonly required />
                     </div>
-                    <small class="text-muted"><i class="bi bi-lock-fill me-1"></i>Bloqueado (calculado por horas)</small>
+                    <small class="text-muted"><i class="bi bi-lock-fill me-1"></i>Calculado automáticamente según cancha y horas</small>
                 </div>
 
-                <div class="col-md-4">
+                <div class="col-md-6">
                     <label class="form-label fw-semibold">Monto Recibido (S/) <span class="text-danger">*</span></label>
                     <div class="input-group">
                         <span class="input-group-text bg-light fw-bold">S/</span>
                         <input asp-for="MontoRecibido" id="inputMontoRecibido" type="number" step="0.5" min="0" class="form-control fw-bold fs-5" required />
                     </div>
-                    <small class="text-muted">Adelanto o pago liquidado (mínimo S/ 0)</small>
+                    <small class="text-muted">Adelanto o pago total liquidado</small>
                 </div>
 
-                <div class="col-md-4">
-                    <label class="form-label fw-semibold">Estado de la Reserva</label>
-                    <select asp-for="EstadoReserva" class="form-select">
-                        <option value="Pendiente">Pendiente</option>
-                        <option value="Confirmada">Confirmada</option>
-                        <option value="Completada">Completada</option>
-                        <option value="Cancelada">Cancelada</option>
-                    </select>
-                </div>
-
-                <!-- Resumen de Saldo Dinámico -->
-                <div class="col-12" id="boxSaldo">
-                    <div id="alertSaldo" class="alert alert-info py-2 px-3 mb-0 d-flex justify-content-between align-items-center">
+                <div class="col-12" id="boxEstadoPago">
+                    <div id="alertEstadoPago" class="alert alert-warning py-2 px-3 mb-0 d-flex justify-content-between align-items-center">
                         <div>
-                            <i class="bi bi-wallet2 me-2"></i>
-                            <strong id="lblSaldoTitulo">Saldo por Cobrar:</strong>
-                            <span id="lblSaldoMonto" class="fs-6 fw-bold ms-1">S/ 0.00</span>
+                            <span class="fw-semibold me-1">Estado de la Reserva:</span>
+                            <span id="badgeEstadoVisual" class="badge bg-warning text-dark py-1 px-2 fs-6">@Model.EstadoReserva</span>
                         </div>
-                        <span id="badgeEstadoPago" class="badge bg-success py-2 px-3">Pagado</span>
+                        <div>
+                            <span id="lblDetalleSaldo" class="small fw-semibold">Saldo: S/ 0.00</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -124,89 +115,97 @@
         const inputFin = document.getElementById('inputFin');
         const inputPrecioTotal = document.getElementById('inputPrecioTotal');
         const inputMontoRecibido = document.getElementById('inputMontoRecibido');
-        const boxDetalleTiempo = document.getElementById('boxDetalleTiempo');
-        const txtDuracion = document.getElementById('txtDuracion');
-        const txtTarifaCancha = document.getElementById('txtTarifaCancha');
-        const badgeAvisoMinimo = document.getElementById('badgeAvisoMinimo');
-        const boxSaldo = document.getElementById('boxSaldo');
-        const lblSaldoTitulo = document.getElementById('lblSaldoTitulo');
-        const lblSaldoMonto = document.getElementById('lblSaldoMonto');
-        const alertSaldo = document.getElementById('alertSaldo');
-        const badgeEstadoPago = document.getElementById('badgeEstadoPago');
+        const inputEstadoReserva = document.getElementById('inputEstadoReserva');
+        const lblHoraFinTexto = document.getElementById('lblHoraFinTexto');
+        const alertEstadoPago = document.getElementById('alertEstadoPago');
+        const badgeEstadoVisual = document.getElementById('badgeEstadoVisual');
+        const lblDetalleSaldo = document.getElementById('lblDetalleSaldo');
 
-        function recalcularTiempo(actualizarPrecio = false) {
+        let duracionSeleccionada = @duracionActual;
+
+        function seleccionarDuracion(horas) {
+            duracionSeleccionada = horas;
+            calcularTodo();
+        }
+
+        function calcularTodo() {
             const opt = selectCancha.options[selectCancha.selectedIndex];
             const tarifaHora = parseFloat(opt?.getAttribute('data-precio') || 0);
 
-            const dtInicio = new Date(inputInicio.value);
-            const dtFin = new Date(inputFin.value);
-
-            if (!isNaN(dtInicio.getTime()) && !isNaN(dtFin.getTime()) && dtFin > dtInicio && tarifaHora > 0) {
-                const diffMs = dtFin - dtInicio;
-                const horasExactas = diffMs / (1000 * 60 * 60);
-
-                const horasEnteras = Math.floor(horasExactas);
-                const minutosRestantes = Math.round((horasExactas - horasEnteras) * 60);
-                let duracionTexto = "";
-                if (horasEnteras > 0) duracionTexto += `${horasEnteras} h `;
-                if (minutosRestantes > 0) duracionTexto += `${minutosRestantes} min`;
-                if (duracionTexto === "") duracionTexto = "0 min";
-
-                txtDuracion.textContent = duracionTexto;
-                txtTarifaCancha.textContent = `S/ ${tarifaHora.toFixed(2)}`;
-                boxDetalleTiempo.style.display = 'block';
-
-                if (horasExactas < 1) {
-                    badgeAvisoMinimo.style.display = 'inline-block';
-                } else {
-                    badgeAvisoMinimo.style.display = 'none';
-                }
-
-                if (actualizarPrecio) {
-                    const total = Math.round((horasExactas * tarifaHora) * 100) / 100;
-                    inputPrecioTotal.value = total.toFixed(2);
+            if (inputInicio.value) {
+                const dtInicio = new Date(inputInicio.value);
+                if (!isNaN(dtInicio.getTime())) {
+                    const dtFin = new Date(dtInicio.getTime() + (duracionSeleccionada * 60 * 60 * 1000));
+                    
+                    const anio = dtFin.getFullYear();
+                    const mes = String(dtFin.getMonth() + 1).padStart(2, '0');
+                    const dia = String(dtFin.getDate()).padStart(2, '0');
+                    const hora = String(dtFin.getHours()).padStart(2, '0');
+                    const min = String(dtFin.getMinutes()).padStart(2, '0');
+                    
+                    inputFin.value = `${anio}-${mes}-${dia}T${hora}:${min}`;
+                    lblHoraFinTexto.textContent = `${dia}/${mes}/${anio} ${hora}:${min}`;
                 }
             }
 
-            actualizarSaldo();
+            if (tarifaHora > 0) {
+                const total = Math.round((tarifaHora * duracionSeleccionada) * 100) / 100;
+                inputPrecioTotal.value = total.toFixed(2);
+                inputMontoRecibido.max = total.toFixed(2);
+            }
+
+            actualizarEstadoPago();
         }
 
-        function actualizarSaldo() {
+        function actualizarEstadoPago() {
+            if (inputEstadoReserva.value === "Cancelada") {
+                alertEstadoPago.className = "alert alert-danger py-2 px-3 mb-0 d-flex justify-content-between align-items-center";
+                badgeEstadoVisual.className = "badge bg-danger py-1 px-2 fs-6";
+                badgeEstadoVisual.textContent = "Cancelada";
+                lblDetalleSaldo.textContent = "Reserva anulada";
+                return;
+            }
+
             const total = parseFloat(inputPrecioTotal.value) || 0;
             let recibido = parseFloat(inputMontoRecibido.value) || 0;
+
             if (recibido < 0) {
                 recibido = 0;
                 inputMontoRecibido.value = 0;
             }
+
+            if (total > 0 && recibido > total) {
+                recibido = total;
+                inputMontoRecibido.value = total.toFixed(2);
+            }
+
             const saldo = Math.round((total - recibido) * 100) / 100;
 
-            if (total > 0) {
-                boxSaldo.style.display = 'block';
-                if (saldo <= 0) {
-                    alertSaldo.className = "alert alert-success py-2 px-3 mb-0 d-flex justify-content-between align-items-center";
-                    lblSaldoTitulo.textContent = "Estado:";
-                    lblSaldoMonto.textContent = `Pagado totalmente (S/ ${recibido.toFixed(2)})`;
-                    badgeEstadoPago.className = "badge bg-success py-2 px-3";
-                    badgeEstadoPago.textContent = "✓ Completamente Pagado";
-                } else {
-                    alertSaldo.className = "alert alert-warning py-2 px-3 mb-0 d-flex justify-content-between align-items-center";
-                    lblSaldoTitulo.textContent = "Saldo Pendiente:";
-                    lblSaldoMonto.textContent = `S/ ${saldo.toFixed(2)}`;
-                    badgeEstadoPago.className = "badge bg-danger py-2 px-3";
-                    badgeEstadoPago.textContent = `⚠️ Debe S/ ${saldo.toFixed(2)} al jugar`;
-                }
+            if (total > 0 && recibido >= total) {
+                inputEstadoReserva.value = "Completada";
+                alertEstadoPago.className = "alert alert-success py-2 px-3 mb-0 d-flex justify-content-between align-items-center";
+                badgeEstadoVisual.className = "badge bg-success py-1 px-2 fs-6";
+                badgeEstadoVisual.textContent = "Completo";
+                lblDetalleSaldo.textContent = `Pagado totalmente (S/ ${recibido.toFixed(2)})`;
+            } else if (recibido > 0) {
+                inputEstadoReserva.value = "Confirmada";
+                alertEstadoPago.className = "alert alert-primary py-2 px-3 mb-0 d-flex justify-content-between align-items-center";
+                badgeEstadoVisual.className = "badge bg-primary py-1 px-2 fs-6";
+                badgeEstadoVisual.textContent = "Confirmado";
+                lblDetalleSaldo.textContent = `Adelanto recibido: S/ ${recibido.toFixed(2)} (Resta S/ ${saldo.toFixed(2)})`;
             } else {
-                boxSaldo.style.display = 'none';
+                inputEstadoReserva.value = "Pendiente";
+                alertEstadoPago.className = "alert alert-warning py-2 px-3 mb-0 d-flex justify-content-between align-items-center";
+                badgeEstadoVisual.className = "badge bg-warning text-dark py-1 px-2 fs-6";
+                badgeEstadoVisual.textContent = "Pendiente";
+                lblDetalleSaldo.textContent = `Pendiente por cobrar: S/ ${saldo.toFixed(2)}`;
             }
         }
 
-        selectCancha.addEventListener('change', () => recalcularTiempo(true));
-        inputInicio.addEventListener('change', () => recalcularTiempo(true));
-        inputFin.addEventListener('change', () => recalcularTiempo(true));
-        inputPrecioTotal.addEventListener('input', actualizarSaldo);
-        inputMontoRecibido.addEventListener('input', actualizarSaldo);
+        selectCancha.addEventListener('change', calcularTodo);
+        inputInicio.addEventListener('change', calcularTodo);
+        inputMontoRecibido.addEventListener('input', actualizarEstadoPago);
 
-        // Inicializar lectura visual al abrir
-        recalcularTiempo(false);
+        actualizarEstadoPago();
     </script>
 }
