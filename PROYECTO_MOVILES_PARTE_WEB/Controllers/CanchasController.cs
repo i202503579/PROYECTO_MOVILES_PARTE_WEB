@@ -15,7 +15,7 @@ namespace PROYECTO_MOVILES_PARTE_WEB.Controllers
             _api = api;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int pagina = 1)
         {
             var rol = HttpContext.Session.GetString("Rol") ?? "";
             if (rol != "Administrador")
@@ -25,7 +25,23 @@ namespace PROYECTO_MOVILES_PARTE_WEB.Controllers
             }
 
             var canchas = await _api.GetListAsync<Cancha>("CanchasAPI/GetCanchas");
-            return View(canchas);
+            var canchasOrdenadas = canchas.OrderBy(c => c.IdCancha).ToList();
+
+            const int tamanoPagina = 10;
+            var totalRegistros = canchasOrdenadas.Count;
+            var totalPaginas = (int)Math.Ceiling((double)totalRegistros / tamanoPagina);
+            if (totalPaginas < 1) totalPaginas = 1;
+            if (pagina < 1) pagina = 1;
+            if (pagina > totalPaginas) pagina = totalPaginas;
+
+            var canchasPaginadas = canchasOrdenadas.Skip((pagina - 1) * tamanoPagina).Take(tamanoPagina).ToList();
+
+            ViewBag.PaginaActual = pagina;
+            ViewBag.TotalPaginas = totalPaginas;
+            ViewBag.TotalRegistros = totalRegistros;
+            ViewBag.TamanoPagina = tamanoPagina;
+
+            return View(canchasPaginadas);
         }
 
         [HttpGet]

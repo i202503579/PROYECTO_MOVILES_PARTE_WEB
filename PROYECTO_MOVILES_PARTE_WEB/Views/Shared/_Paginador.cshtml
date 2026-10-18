@@ -1,0 +1,56 @@
+@{
+    int paginaActual = ViewBag.PaginaActual ?? 1;
+    int totalPaginas = ViewBag.TotalPaginas ?? 1;
+    int totalRegistros = ViewBag.TotalRegistros ?? 0;
+    int tamanoPagina = ViewBag.TamanoPagina ?? 10;
+    int inicio = totalRegistros > 0 ? ((paginaActual - 1) * tamanoPagina) + 1 : 0;
+    int fin = Math.Min(paginaActual * tamanoPagina, totalRegistros);
+}
+
+@if (totalRegistros > 0)
+{
+    <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top flex-wrap gap-2">
+        <small class="text-muted">
+            Mostrando <strong>@inicio</strong> - <strong>@fin</strong> de <strong>@totalRegistros</strong> registros (10 por página)
+        </small>
+
+        @if (totalPaginas > 1)
+        {
+            <nav aria-label="Paginación">
+                <ul class="pagination pagination-sm mb-0">
+                    @{
+                        string GenerarUrl(int p)
+                        {
+                            var query = new Microsoft.AspNetCore.Routing.RouteValueDictionary();
+                            foreach (var q in Context.Request.Query)
+                            {
+                                query[q.Key] = q.Value.ToString();
+                            }
+                            query["pagina"] = p;
+                            return Url.Action(null, query) ?? "?pagina=" + p;
+                        }
+                    }
+
+                    <li class="page-item @(paginaActual <= 1 ? "disabled" : "")">
+                        <a class="page-link" href="@(paginaActual > 1 ? GenerarUrl(paginaActual - 1) : "#")">
+                            <i class="bi bi-chevron-left"></i> Anterior
+                        </a>
+                    </li>
+
+                    @for (int i = 1; i <= totalPaginas; i++)
+                    {
+                        <li class="page-item @(i == paginaActual ? "active" : "")">
+                            <a class="page-link" href="@GenerarUrl(i)">@i</a>
+                        </li>
+                    }
+
+                    <li class="page-item @(paginaActual >= totalPaginas ? "disabled" : "")">
+                        <a class="page-link" href="@(paginaActual < totalPaginas ? GenerarUrl(paginaActual + 1) : "#")">
+                            Siguiente <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        }
+    </div>
+}

@@ -15,7 +15,7 @@ namespace PROYECTO_MOVILES_PARTE_WEB.Controllers
             _api = api;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int pagina = 1)
         {
             var rol = HttpContext.Session.GetString("Rol") ?? "";
             if (rol == "Profesor" || rol == "Entrenador")
@@ -24,7 +24,23 @@ namespace PROYECTO_MOVILES_PARTE_WEB.Controllers
             }
 
             var prestamos = await _api.GetListAsync<PrestamoBalon>("PrestamosBalonsAPI/GetPrestamos");
-            return View(prestamos.OrderByDescending(p => p.FechaEntrega).ToList());
+            var prestamosOrdenados = prestamos.OrderBy(p => p.IdPrestamo).ToList();
+
+            const int tamanoPagina = 10;
+            var totalRegistros = prestamosOrdenados.Count;
+            var totalPaginas = (int)Math.Ceiling((double)totalRegistros / tamanoPagina);
+            if (totalPaginas < 1) totalPaginas = 1;
+            if (pagina < 1) pagina = 1;
+            if (pagina > totalPaginas) pagina = totalPaginas;
+
+            var prestamosPaginados = prestamosOrdenados.Skip((pagina - 1) * tamanoPagina).Take(tamanoPagina).ToList();
+
+            ViewBag.PaginaActual = pagina;
+            ViewBag.TotalPaginas = totalPaginas;
+            ViewBag.TotalRegistros = totalRegistros;
+            ViewBag.TamanoPagina = tamanoPagina;
+
+            return View(prestamosPaginados);
         }
 
         [HttpGet]

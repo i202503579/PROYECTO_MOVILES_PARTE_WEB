@@ -15,7 +15,7 @@ namespace PROYECTO_MOVILES_PARTE_WEB.Controllers
             _api = api;
         }
 
-        public async Task<IActionResult> Index(string? buscar)
+        public async Task<IActionResult> Index(string? buscar, int pagina = 1)
         {
             var rol = HttpContext.Session.GetString("Rol") ?? "";
             if (rol == "Profesor" || rol == "Entrenador")
@@ -30,8 +30,25 @@ namespace PROYECTO_MOVILES_PARTE_WEB.Controllers
                     c.NombreCliente.Contains(buscar, StringComparison.OrdinalIgnoreCase) || 
                     c.NumeroDocumento.Contains(buscar)).ToList();
             }
+
+            var clientesOrdenados = clientes.OrderBy(c => c.IdCliente).ToList();
+
+            const int tamanoPagina = 10;
+            var totalRegistros = clientesOrdenados.Count;
+            var totalPaginas = (int)Math.Ceiling((double)totalRegistros / tamanoPagina);
+            if (totalPaginas < 1) totalPaginas = 1;
+            if (pagina < 1) pagina = 1;
+            if (pagina > totalPaginas) pagina = totalPaginas;
+
+            var clientesPaginados = clientesOrdenados.Skip((pagina - 1) * tamanoPagina).Take(tamanoPagina).ToList();
+
             ViewBag.Buscar = buscar;
-            return View(clientes);
+            ViewBag.PaginaActual = pagina;
+            ViewBag.TotalPaginas = totalPaginas;
+            ViewBag.TotalRegistros = totalRegistros;
+            ViewBag.TamanoPagina = tamanoPagina;
+
+            return View(clientesPaginados);
         }
 
         [HttpGet]

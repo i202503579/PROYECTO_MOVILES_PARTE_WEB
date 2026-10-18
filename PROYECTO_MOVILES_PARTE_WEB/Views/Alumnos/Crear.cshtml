@@ -27,7 +27,7 @@
 
                 <div class="col-md-6">
                     <label class="form-label fw-semibold">Fecha de Ingreso</label>
-                    <input asp-for="FechaIngreso" type="date" class="form-control" />
+                    <input asp-for="FechaIngreso" type="date" class="form-control" value="@(Model?.FechaIngreso?.ToString("yyyy-MM-dd") ?? DateTime.Now.ToString("yyyy-MM-dd"))" />
                 </div>
 
                 <div class="col-md-8">

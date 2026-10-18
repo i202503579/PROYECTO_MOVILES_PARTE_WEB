@@ -16,7 +16,7 @@ namespace PROYECTO_MOVILES_PARTE_WEB.Controllers
             _api = api;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int pagina = 1)
         {
             var rol = HttpContext.Session.GetString("Rol") ?? "";
             int.TryParse(HttpContext.Session.GetString("IdUsuario"), out int idUsuarioLogueado);
@@ -36,7 +36,23 @@ namespace PROYECTO_MOVILES_PARTE_WEB.Controllers
                 c.NombreCancha = canchas.FirstOrDefault(ch => ch.IdCancha == c.IdCancha)?.NombreCancha ?? $"Cancha #{c.IdCancha}";
             }
 
-            return View(clases.OrderByDescending(c => c.FechaClase).ToList());
+            var clasesOrdenadas = clases.OrderBy(c => c.IdClase).ToList();
+
+            const int tamanoPagina = 10;
+            var totalRegistros = clasesOrdenadas.Count;
+            var totalPaginas = (int)Math.Ceiling((double)totalRegistros / tamanoPagina);
+            if (totalPaginas < 1) totalPaginas = 1;
+            if (pagina < 1) pagina = 1;
+            if (pagina > totalPaginas) pagina = totalPaginas;
+
+            var clasesPaginadas = clasesOrdenadas.Skip((pagina - 1) * tamanoPagina).Take(tamanoPagina).ToList();
+
+            ViewBag.PaginaActual = pagina;
+            ViewBag.TotalPaginas = totalPaginas;
+            ViewBag.TotalRegistros = totalRegistros;
+            ViewBag.TamanoPagina = tamanoPagina;
+
+            return View(clasesPaginadas);
         }
 
         [HttpGet]

@@ -39,7 +39,7 @@
         <div class="col-md-4">
             <div class="card card-custom p-3 border-start border-4 border-primary">
                 <div class="text-muted text-uppercase fw-semibold" style="font-size: 0.75rem;">RESERVAS LISTADAS</div>
-                <h3 class="fw-bold text-dark mb-0">@Model.Count</h3>
+                <h3 class="fw-bold text-dark mb-0">@(ViewBag.TotalRegistros ?? Model.Count)</h3>
                 <small class="text-muted">Total de registros encontrados</small>
             </div>
         </div>
@@ -163,5 +163,6 @@
                 </tbody>
             </table>
         </div>
+        <partial name="_Paginador" />
     </div>
 </div>

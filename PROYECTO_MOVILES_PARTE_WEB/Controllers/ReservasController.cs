@@ -16,7 +16,7 @@ namespace PROYECTO_MOVILES_PARTE_WEB.Controllers
             _api = api;
         }
 
-        public async Task<IActionResult> Index(string? estado, int? idCancha)
+        public async Task<IActionResult> Index(string? estado, int? idCancha, int pagina = 1)
         {
             var rol = HttpContext.Session.GetString("Rol") ?? "";
             if (rol == "Profesor" || rol == "Entrenador")
@@ -52,7 +52,23 @@ namespace PROYECTO_MOVILES_PARTE_WEB.Controllers
             ViewBag.TotalRecaudado = reservas.Where(r => r.EstadoReserva != "Cancelada").Sum(r => r.MontoRecibido);
             ViewBag.TotalPorCobrar = reservas.Where(r => r.EstadoReserva != "Cancelada").Sum(r => Math.Max(0, r.PrecioReserva - r.MontoRecibido));
 
-            return View(reservas.OrderByDescending(r => r.HoraInicio).ToList());
+            var reservasOrdenadas = reservas.OrderBy(r => r.IdReserva).ToList();
+
+            const int tamanoPagina = 10;
+            var totalRegistros = reservasOrdenadas.Count;
+            var totalPaginas = (int)Math.Ceiling((double)totalRegistros / tamanoPagina);
+            if (totalPaginas < 1) totalPaginas = 1;
+            if (pagina < 1) pagina = 1;
+            if (pagina > totalPaginas) pagina = totalPaginas;
+
+            var reservasPaginadas = reservasOrdenadas.Skip((pagina - 1) * tamanoPagina).Take(tamanoPagina).ToList();
+
+            ViewBag.PaginaActual = pagina;
+            ViewBag.TotalPaginas = totalPaginas;
+            ViewBag.TotalRegistros = totalRegistros;
+            ViewBag.TamanoPagina = tamanoPagina;
+
+            return View(reservasPaginadas);
         }
 
         [HttpGet]
@@ -81,6 +97,13 @@ namespace PROYECTO_MOVILES_PARTE_WEB.Controllers
             if (rol == "Profesor" || rol == "Entrenador")
             {
                 return RedirectToAction("Index", "Clases");
+            }
+
+            if (model.HoraInicio < DateTime.Now.AddMinutes(-5))
+            {
+                ViewBag.Error = "No se puede registrar un alquiler en una fecha u hora pasada.";
+                await CargarCombos();
+                return View(model);
             }
 
             var idUsuarioSesion = HttpContext.Session.GetString("IdUsuario");
